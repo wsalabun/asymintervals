@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyain"
+version = "1.0"
+authors = [
+    {name = "Wojciech Sałabun", email = "w.salabun@il-pib.pl"},
+]
+description = "Python Library for Asymmetric Interval Numbers"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    'numpy'
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+#[project.optional-dependencies]
+#docs = [
+#    "sphinx-autoapi",
+#    "nbsphinx",
+#    "IPython",
+#    "myst_parser",
+#    "sphinx-rtd-theme",
+#    "recommonmark",
+#    "pandoc"
+#]
+
+[project.urls]
+Homepage = "https://github.com/wsalabun/pyain"
+Issues = "https://github.com/wsalabun/pyain/-/issues"

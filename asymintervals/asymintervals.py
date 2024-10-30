@@ -910,7 +910,6 @@ class AIN:
         plt.plot(1, 0, ">k", transform=plt.gca().get_yaxis_transform(), clip_on=False)
         plt.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
         plt.ylabel('$pdf$')
-        plt.grid()
         plt.ylabel('pdf',labelpad=-15)
         plt.xlabel(ain_label)
         plt.show()

@@ -24,7 +24,8 @@ python -m doctest -v asymintervals\asymintervals.py
 A simple example demonstrating how to use the library.
 
 ```python
-from asymintervals import AIN  # Import the AIN (Asymmetric Interval Number) class from the asymintervals module
+# Import the AIN (Asymmetric Interval Number) class from the asymintervals module
+from asymintervals import AIN  
 
 # Initialize two AIN instances with specified lower, upper, and expected values
 a = AIN(0, 10, 2)  # Interval 'a' with lower=0, upper=10, expected=2

@@ -2,7 +2,7 @@ The `asymintervals` library introduces a novel and unique approach with **Asymme
 
 AINs integrate the expected value with the interval, offering a more accurate representation of data uncertainty compared to traditional interval numbers. This library provides a complete toolkit, including basic arithmetic operations. The theoretical foundations of AINs, along with detailed discussions on properties, rigorous mathematical proofs, and theorems on symmetry and asymmetry for both binary and unary operations, are introduced in [1], further enhancing the mathematical framework of AINs. Practical examples illustrate the versatility of AINs in various scientific and technical applications. AINs represent a significant advancement in interval arithmetic, paving the way for further research and applications across diverse fields.
 
-Documentation is avaliable on [readthedocs](https://asymintervals.readthedocs.io/en/master/).
+Documentation is avaliable on [readthedocs](https://asymintervals.readthedocs.io/en/latest/).
 
 
 ### Installation

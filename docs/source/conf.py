@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 project = 'asymintervals'
 copyright = '2024, Wojciech Sałabun'
 author = 'Wojciech Sałabun'
-release = '1.0'
+release = '1.0.0'
 
 html_theme = 'furo'#'sphinx_rtd_theme'#'furo'
 

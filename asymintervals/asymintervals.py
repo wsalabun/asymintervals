@@ -831,43 +831,43 @@ class AIN:
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
-        Plots the intervals and key values of the AIN (Asymmetric Interval Number) instance.
+        Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
 
-        This method generates a plot illustrating the lower, upper, and expected values of the AIN instance,
-        along with the alpha and beta levels. The plot includes:
-        - Vertical dashed lines at the lower, expected, and upper bounds.
+        This method visualizes the AIN instance by plotting the lower, expected, and upper values,
+        along with the corresponding alpha and beta levels. The plot includes:
+        - Vertical dashed lines at the lower, expected, and upper bounds of the interval.
         - Horizontal solid lines representing the alpha and beta values across the intervals.
-
-        The plot is designed for clarity, with a dynamic y-axis range based on the maximum alpha and beta values,
-        and an x-axis that extends slightly beyond the bounds for enhanced visibility.
+        - Dynamic x- and y-axis scaling to ensure clarity.
 
         Parameters
         ----------
         ain_lw : float, optional
-            Line width for the alpha and beta lines. Default is 2.0.
+            Line width for the alpha and beta lines. Must be a positive float or integer. Default is 2.0.
         ain_c : str, optional
-            Color for the interval lines. Default is 'k' (black).
+            Color for the interval lines. Accepts any valid matplotlib color string. Default is 'k' (black).
         ain_label : str, optional
-            Label for the alpha and beta lines, which can be used in plot legends. Default is an empty string.
+            Label for the alpha and beta interval lines, used in plot legends. Default is an empty string.
 
         Raises
         ------
         ValueError
-            If `ain_lw` is not a positive float or integer.
+            Raised if `ain_lw` is not a positive float or integer.
         TypeError
-            If `ain_c` is not a string, or `ain_label` is not a string.
+            Raised if `ain_c` or `ain_label` is not a string.
 
         Examples
         --------
         >>> ain = AIN(1, 10, 3)
-        >>> ain.plot()
+        >>> ain.plot(ain_label='Example')
 
         Notes
         -----
-        - Vertical dashed lines mark the lower, expected, and upper values.
-        - Horizontal solid lines show alpha and beta values between the lower and expected, and expected and upper values, respectively.
-        - The y-axis is automatically adjusted to fit the maximum of the alpha and beta values, while the x-axis extends slightly to improve readability.
-        - Arrow markers are used to denote the direction of the axes, and grid lines are included for added reference.
+        - Vertical dashed lines are positioned at the lower, expected, and upper interval bounds.
+        - Horizontal solid lines show the alpha level between the lower and expected values, and
+          the beta level between the expected and upper values.
+        - Y-axis limits are automatically adjusted based on the maximum of alpha and beta, while
+          the x-axis extends slightly beyond the interval bounds for readability.
+        - The default y-axis label is set to 'pdf', and the default x-axis label displays `ain_label`.
         """
         if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
             raise ValueError("ain_lw must be a positive float or integer.")
@@ -888,7 +888,7 @@ class AIN:
         plt.plot([b, b], [0, beta], **vkw)
 
         hkw = dict(ls='-', lw=ain_lw, c=ain_c)
-        plt.plot([a, c], [alpha, alpha], **hkw, label=ain_label)
+        plt.plot([a, c], [alpha, alpha], **hkw)
         plt.plot([c, b], [beta, beta], **hkw)
 
         plt.gca().set_ylim([0, max(alpha, beta) * 1.1])
@@ -911,4 +911,6 @@ class AIN:
         plt.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
         plt.ylabel('$pdf$')
         plt.grid()
+        plt.ylabel('pdf',labelpad=-15)
+        plt.xlabel(ain_label)
         plt.show()

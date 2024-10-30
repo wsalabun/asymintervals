@@ -784,12 +784,6 @@ class AIN:
         TypeError
             If `precision` is not an integer, a ValueError is raised with an informative message.
 
-        Output Format
-        -------------
-        Each attribute is displayed in a labeled row, with attribute names left-aligned and values
-        right-aligned to match the longest value string for uniform formatting. A header and footer
-        frame the summary for clarity.
-
         Example
         -------
         >>> a = AIN(0, 10, 2)

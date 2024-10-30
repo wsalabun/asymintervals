@@ -5,10 +5,10 @@ AINs integrate the expected value with the interval, offering a more accurate re
 
 ### Installation
 
-You can download and install `pymcdm` library using pip:
+You can download and install `pyain` library using pip:
 
 ```Bash
-pip install pymcdm
+pip install pyain
 ```
 
 You can run all tests with following command from the root of the project:

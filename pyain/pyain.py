@@ -579,3 +579,85 @@ class AIN:
             raise ValueError(f'Argument y = {y} is out of range; it should be between 0 and 1.')
         return res
 
+
+    def summary(self, precision=6):
+        """
+        Print a detailed, aligned summary of the AIN object's key attributes with specified precision.
+
+        This method displays a formatted summary of the AIN object's core attributes, each aligned
+        for readability. It includes a validation step for the `precision` parameter to ensure proper
+        input, raising an error if the value is not an integer.
+
+        Parameters
+        ----------
+        precision : int, optional
+            The number of decimal places to display for floating-point values (default is 6).
+            Must be an integer; otherwise, a ValueError is raised.
+
+        Raises
+        ------
+        ValueError
+            If `precision` is not an integer, a ValueError is raised with an informative message.
+
+        Attributes Printed
+        ------------------
+        - Alpha       : The `alpha` attribute of the AIN object.
+        - Beta        : The `beta` attribute of the AIN object.
+        - Assymetry   : The `asymmetry` attribute of the AIN object.
+        - Exp. val.   : The expected value of the AIN object.
+        - Variance    : The variance of the AIN object.
+        - Std. dev.   : The standard deviation of the AIN object.
+        - Midpoint    : The midpoint of the AIN object.
+
+        Output Format
+        -------------
+        Each attribute is displayed in a labeled row, with attribute names left-aligned and values
+        right-aligned to match the longest value string for uniform formatting. A header and footer
+        frame the summary for clarity.
+
+        Example
+        -------
+        >>> a = AIN(0, 10, 2)
+        >>> a.summary(precision=4)
+        === AIN ============================
+        [0.0000, 10.0000]_{2.0000}
+        === Summary ========================
+        Alpha        =     0.4000
+        Beta         =     0.0250
+        Assymetry    =     0.6000
+        Exp. val.    =     2.0000
+        Variance     =     5.3333
+        Std. dev.    =     2.3094
+        Midpoint     =     5.0000
+        ====================================
+
+        Notes
+        -----
+        This method ensures a clean, easy-to-read summary by aligning values based on the longest
+        entry, making it particularly useful for inspecting the AIN object's main parameters in detail.
+        """
+        if not isinstance(precision, int):
+            raise ValueError(f'Argument precision = {precision} but it must be an integer.')
+        print("=== AIN ============================")
+        print(self)
+        print("=== Summary ========================")
+
+        elements = [
+            ('Alpha', f'{self.alpha:.{precision}f}'),
+            ('Beta', f'{self.beta:.{precision}f}'),
+            ('Assymetry', f'{self.asymmetry:.{precision}f}'),
+            ('Exp. val.', f'{self.expected:.{precision}f}'),
+            ('Variance', f'{self.D2:.{precision}f}'),
+            ('Std. dev.', f'{(self.D2 ** 0.5):.{precision}f}'),
+            ('Midpoint', f'{((self.lower + self.upper) / 2):.{precision}f}')
+        ]
+
+        max_length = max(len(str(value)) for _, value in elements) + 4
+
+        for name, value in elements:
+            print(f'{name:<12} = {value:>{max_length}}')
+
+        print("====================================")
+
+a = AIN(0, 10, 2)
+a.summary(precision=4)

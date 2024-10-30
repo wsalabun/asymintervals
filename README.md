@@ -28,7 +28,14 @@ from asymintervals import AIN
 a = AIN(0, 10, 2)
 b = AIN(2, 8, 3)
 c = a + b
+d = a * b
+e = c / d
+c.plot()
+d.plot()
+e.plot()
 print(c)
+print(d)
+print(e)
 ```
 
 

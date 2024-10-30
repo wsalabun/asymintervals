@@ -3,34 +3,72 @@ import numpy as np
 class AIN:
     def __init__(self, lower: float, upper: float, expected: float = None):
         """
-        Initializes a new instance of the Asymmetric Interval Number (AIN) with specified 'lower' and 'upper'
-        bounds, and optionally, an 'expected' value.
+        Initialize an Asymmetric Interval Number (AIN) with specified bounds and an optional expected value.
+
+        This constructor creates an instance of AIN using `lower` and `upper` bounds to define the interval.
+        Optionally, an `expected` value within this range can be provided. If `expected` is not specified,
+        it defaults to the midpoint of `lower` and `upper`. The `expected` value must lie within the interval
+        `[lower, upper]`. Additionally, asymmetry coefficients (`alpha`, `beta`) and the degree of asymmetry
+        (`asymmetry`) are calculated based on the specified bounds and expected value.
 
         Parameters
         ----------
         lower : float
-            The lower bound of the interval ('lower' must be less than 'upper')
+            The lower bound of the interval. Must be less than `upper`.
         upper : float
-            The upper bound of the interval ('upper' must be greater than 'lower')
+            The upper bound of the interval. Must be greater than `lower`.
+        expected : float, optional
+            The expected value within the interval. Defaults to the midpoint `(lower + upper) / 2` if not provided.
+
+        Raises
+        ------
+        TypeError
+            If `lower`, `upper`, or `expected` are not of type float or int.
+        ValueError
+            If `expected` is not within the range `[lower, upper]`.
+
+        Attributes
+        ----------
+        lower : float
+            The lower bound of the interval.
+        upper : float
+            The upper bound of the interval.
         expected : float
-            The 'expected' value of the interval within the range. If not provided,
-            defaults to the average of 'lower' and 'upper'.
+            The expected value within the interval.
+        alpha : float
+            The asymmetry coefficient for the interval, calculated if `lower` is not equal to `upper`.
+        beta : float
+            The asymmetry coefficient for the interval, calculated if `lower` is not equal to `upper`.
+        asymmetry : float
+            The asymmetry degree of the interval, representing the relative position of `expected`
+            between `lower` and `upper`.
+        D2 : float
+            A parameter derived from asymmetry calculations (if applicable).
 
         Examples
-        ----------
-        >>> a = AIN(0,10,8)
+        --------
+        Creating an AIN with a specified expected value:
+        >>> a = AIN(0, 10, 8)
         >>> print(a)
         [0.0000, 10.0000]_{8.0000}
 
+        Creating an AIN with a default expected value:
         >>> b = AIN(0, 10)
         >>> repr(b)
         'AIN(0, 10, 5.0)'
 
-        >>> c = AIN(1,2,3)
+        Attempting to create an improper AIN:
+        >>> c = AIN(1, 2, 3)
         Traceback (most recent call last):
         ...
         ValueError: It is not a proper AIN 1.0000, 2.0000, 3.0000
         """
+        if not isinstance(lower, (int, float)):
+            raise TypeError('lower must be int or float')
+        if not isinstance(upper, (int, float)):
+            raise TypeError('upper must be int or float')
+        if not (expected is None or isinstance(expected, (int, float))):
+            raise TypeError('expected must be int or float')
         if expected is None:
             expected = (lower + upper) / 2
         if not (lower <= expected <= upper):
@@ -129,35 +167,46 @@ class AIN:
 
     def __add__(self, other):
         """
-        Add two AINs (Asymmetric Interval Numbers) or an AIN and a scalar.
+        Add an AIN instance or a float or int to the current AIN instance.
+
+        This method enables addition of either another Asymmetric Interval Number (AIN)
+        instance or a float or int to the current AIN instance, returning a new AIN
+        instance representing the result. When adding another AIN, the resulting lower,
+        upper, and expected values are computed by summing the respective values of both AINs.
+        When adding a float or int, the scalar is added to each component of the AIN instance.
 
         Parameters
         ----------
-        other : AIN or scalar
-            The AIN or scalar to add to the current AIN instance. If A is an instance
-            of AIN, the lower, upper, and expected values of both AINs are added
-            component-wise. If A is a scalar, it is added to each component of the
-            current AIN.
+        other : AIN, float, or int
+            The value to add, which can be another AIN instance, a float, or an int.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the addition. The new instance
-            will have its lower, upper, and expected values as the sum of the corresponding
-            values of the operands.
+            A new AIN instance representing the result of the addition, with updated
+            lower, upper, and expected values based on the operation.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
 
         Examples
         --------
+        Addition with another AIN instance:
         >>> a = AIN(1, 10, 8)
         >>> b = AIN(0, 5, 2)
-        >>> print(a+b)
+        >>> print(a + b)
         [1.0000, 15.0000]_{10.0000}
 
+        Addition with a float or int:
         >>> a = AIN(1, 10, 8)
         >>> b = 2
-        >>> print(a+b)
+        >>> print(a + b)
         [3.0000, 12.0000]_{10.0000}
         """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError(f"other is not an instance of AIN or float or int")
         if isinstance(other, AIN):
             new_a = self.lower + other.lower
             new_b = self.upper + other.upper
@@ -169,23 +218,28 @@ class AIN:
 
     def __radd__(self, other):
         """
-        Perform the reflected (reversed) addition operation for AIN (Asymmetric Interval Number).
+        Perform reflected (reverse) addition for an AIN instance.
 
-        This method is called when the AIN instance appears on the right-hand side of the addition
-        operator and the left-hand operand does not support the addition operation with an AIN instance.
-        Essentially, it computes `other + self`.
+        This method enables the addition of an Asymmetric Interval Number (AIN) instance
+        to a float or int when the AIN appears on the right side of the addition (i.e., `other + self`).
+        It calculates `other + self`, allowing for commutative addition with floats and ints.
 
         Parameters
         ----------
-        other : scalar
-            The scalar value from which the current AIN instance is to be subtracted.
+        other : float or int
+            The value to add to the current AIN instance.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the addition. The new instance
-            will have its lower, upper, and expected values as the sum of `other` and
-            the corresponding values of the current AIN instance.
+            A new AIN instance representing the result of the addition, with lower, upper,
+            and expected values equal to the sum of `other` and the corresponding values of
+            the current AIN instance.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not a float or int.
 
         Examples
         --------
@@ -194,39 +248,53 @@ class AIN:
         >>> print(b + a)
         [6.0000, 15.0000]_{13.0000}
         """
+        if not isinstance(other, (float, int)):
+            raise TypeError("other must be of type float or int")
         return self + other
 
     def __sub__(self, other):
         """
-        Subtract an AIN (Asymmetric Interval Number) or a scalar from the current AIN instance.
+        Subtract an AIN instance or a float or int from the current AIN instance.
+
+        This method allows subtraction of either another Asymmetric Interval Number (AIN)
+        or a float or int from the current AIN instance, returning a new AIN instance
+        with the result. When subtracting another AIN, the resulting bounds and expected
+        value are computed by subtracting the corresponding values of the operands. If
+        subtracting a float or int, the scalar is subtracted from each component of the
+        current AIN instance.
 
         Parameters
         ----------
-        other : AIN or scalar
-            The AIN or scalar to subtract from the current AIN instance. If A is an instance
-            of AIN, the lower, upper, and expected values of A are subtracted from the
-            upper, lower, and expected values of the current AIN instance, respectively.
-            If A is a scalar, it is subtracted from each component of the current AIN.
+        other : AIN, float, or int
+            The value to subtract, which can be an AIN instance, a float, or an int.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the subtraction. The new instance
-            will have its lower, upper, and expected values as the difference of the corresponding
-            values of the operands.
+            A new AIN instance representing the result of the subtraction, with adjusted
+            lower, upper, and expected values based on the operation.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
 
         Examples
         --------
+        Subtracting an AIN instance:
         >>> a = AIN(1, 10, 8)
         >>> b = AIN(0, 5, 2)
         >>> print(a - b)
         [-4.0000, 10.0000]_{6.0000}
 
+        Subtracting a float or int:
         >>> a = AIN(1, 10, 8)
         >>> b = 2
         >>> print(a - b)
         [-1.0000, 8.0000]_{6.0000}
         """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other is not an instance of AIN or float or int")
         if isinstance(other, AIN):
             new_a = self.lower - other.upper
             new_b = self.upper - other.lower
@@ -238,23 +306,29 @@ class AIN:
 
     def __rsub__(self, other):
         """
-        Perform the reflected (reversed) subtraction operation for AIN (Asymmetric Interval Number).
+        Perform reflected (reverse) subtraction for an AIN instance.
 
-        This method is called when the AIN instance appears on the right-hand side of the subtraction
-        operator and the left-hand operand does not support the subtraction operation with an AIN instance.
-        Essentially, it computes `other - self`.
+        This method is invoked when an Asymmetric Interval Number (AIN) instance appears
+        on the right-hand side of a subtraction operation (i.e., `other - self`) and the
+        left operand (`other`) does not support subtraction with an AIN. It calculates
+        the result of `other - self`.
 
         Parameters
         ----------
-        other : scalar
-            The scalar value from which the current AIN instance is to be subtracted.
+        other : float or int
+            The value from which the current AIN instance is subtracted.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the subtraction. The new instance
-            will have its lower, upper, and expected values as the difference of `other` and
-            the corresponding values of the current AIN instance.
+            A new AIN instance representing the result of the subtraction. The resulting
+            AIN has its lower, upper, and expected values computed as the difference between
+            `other` and the respective values of the AIN instance.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not a float or int.
 
         Examples
         --------
@@ -263,35 +337,50 @@ class AIN:
         >>> print(b - a)
         [-5.0000, 4.0000]_{-3.0000}
         """
+        if not isinstance(other, (float, int)):
+            raise TypeError("other must be of type float or int")
         return -self + other
 
     def __mul__(self, other):
         """
-        Multiplies the current instance with another instance of AIN or a numeric value.
+        Perform multiplication of the current AIN instance with another AIN or a float or int.
+
+        This method allows the multiplication of an Asymmetric Interval Number (AIN) instance
+        with another AIN instance or a float or int, returning a new AIN instance that
+        represents the result. When multiplying with another AIN, the interval boundaries
+        are computed based on the combinations of bounds from both AIN instances.
 
         Parameters
         ----------
-        other : AIN or scalar
-            The value to multiply with. It can be another instance of AIN or a numeric value.
-
+        other : AIN, float, or int
+            The value to multiply with, which can be another AIN instance, a float, or an int.
 
         Returns
         -------
         AIN
-            A new instance of AIN representing the result of the multiplication.
+            A new AIN instance representing the product of the multiplication.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
 
         Examples
         --------
+        Multiplying with another AIN instance:
         >>> a = AIN(1, 3, 2)
         >>> b = AIN(2, 4, 3)
         >>> print(a * b)
         [2.0000, 12.0000]_{6.0000}
 
+        Multiplying with a float or int:
         >>> a = AIN(1, 3, 2)
         >>> b = 2
         >>> print(a * b)
         [2.0000, 6.0000]_{4.0000}
         """
+        if not isinstance(other, (int,float, AIN)):
+            raise TypeError('other must be an instance of AIN or int or float')
         if isinstance(other, AIN):
             new_a = min(self.lower * other.lower, self.upper * other.upper, self.lower * other.upper, self.upper * other.lower)
             new_b = max(self.lower * other.lower, self.upper * other.upper, self.lower * other.upper, self.upper * other.lower)
@@ -303,21 +392,27 @@ class AIN:
 
     def __rmul__(self, other):
         """
-        Implements the reverse multiplication operation for the AIN class.
+        Perform reverse multiplication for an AIN instance with a float or int.
 
-        This method is called when an instance of AIN is multiplied by another object
-        and the other object does not have a __mul__ method that supports the instance
-        of AIN. This allows for commutative multiplication operations with AIN.
+        This method allows an Asymmetric Interval Number (AIN) instance to be multiplied
+        by a float or int in cases where the float or int appears on the left side of
+        the multiplication (i.e., `other * self`). This enables commutative multiplication
+        between AIN and float or int values.
 
         Parameters
         ----------
-        other : scalar
-            The value to multiply with the instance of AIN.
+        other : float or int
+            The float or int value to multiply with the AIN instance.
 
         Returns
         -------
         AIN
-            A new instance of AIN representing the result of the multiplication.
+            A new AIN instance representing the result of the multiplication.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not a float or int.
 
         Examples
         --------
@@ -327,34 +422,50 @@ class AIN:
         >>> print(result)
         [2.0000, 6.0000]_{4.0000}
         """
+        if not isinstance(other, (float, int)):
+            raise TypeError("other must be float or int")
         return self * other
 
     def __truediv__(self, other):
         """
-        Divides the current instance by another instance of AIN or a scalar value.
+        Perform division of the current AIN instance by another AIN instance or a float or int.
+
+        This method supports division by either another Asymmetric Interval Number (AIN) or a
+        float or int, returning a new AIN instance as the result. When dividing by an AIN,
+        interval boundaries are calculated by dividing the respective boundaries, while the
+        expected value is adjusted based on logarithmic calculations if the bounds differ.
 
         Parameters
         ----------
-        other : AIN or scalar
-            The value to divide by. It can be another instance of AIN or a scalar value.
+        other : AIN, float, or int
+            The divisor, which can be an AIN instance, a float, or an int.
 
         Returns
         -------
         AIN
-            A new instance of AIN representing the result of the division.
+            A new AIN instance representing the result of the division.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
 
         Examples
         --------
+        Division with another AIN instance:
         >>> a = AIN(4, 8, 6)
         >>> b = AIN(2, 4, 3)
         >>> print(a / b)
         [1.0000, 4.0000]_{2.0794}
 
+        Division with a float or int:
         >>> a = AIN(4, 8, 6)
         >>> b = 2
         >>> print(a / b)
         [2.0000, 4.0000]_{3.0000}
         """
+        if not isinstance(other, (AIN, int, float)):
+            raise TypeError(f"other must be an instance of AIN or float or int")
         if isinstance(other, AIN):
             new_a = min(self.lower / other.lower, self.upper / other.upper, self.lower / other.upper, self.upper / other.lower)
             new_b = max(self.lower / other.lower, self.upper / other.upper, self.lower / other.upper, self.upper / other.lower)
@@ -369,21 +480,26 @@ class AIN:
 
     def __rtruediv__(self, other):
         """
-        Computes the division of a scalar by an Asymmetric Interval Number (AIN) instance.
+        Perform reverse true division of a float or int by an Asymmetric Interval Number (AIN) instance.
 
-        This method implements the reverse true division (i.e., `other / self`), where `self`
-        is an AIN object and `other` is a scalar. The operation is performed by calculating
-        the reciprocal of the AIN and multiplying it by `other`.
+        This method enables division where a float or int `other` is divided by an AIN instance (`self`),
+        calculating the reciprocal of `self` and then scaling it by `other`. It returns a new AIN
+        instance representing the outcome.
 
         Parameters
         ----------
         other : float or int
-            The scalar value to be divided by the AIN.
+            The float or int to divide by the AIN instance.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the division.
+            A new AIN instance representing `other` divided by `self`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not a float or int.
 
         Examples
         --------
@@ -727,5 +843,3 @@ class AIN:
 
         print("====================================")
 
-# a = AIN(0, 10, 2)
-# a.summary(precision=4)

@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to asymintervals's documentation!
+Welcome to asymintervals' documentation!
 =================================
 
 The ``asymintervals`` library introduces a novel and unique approach with **Asymmetric Interval Numbers (AINs)**, combining the simplicity of classical interval numbers with advanced capabilities for modeling uncertainty.

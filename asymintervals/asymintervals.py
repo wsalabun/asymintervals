@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class AIN:
     def __init__(self, lower: float, upper: float, expected: float = None):
@@ -828,3 +829,86 @@ class AIN:
 
         print("====================================")
 
+    def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
+        """
+        Plots the intervals and key values of the AIN (Asymmetric Interval Number) instance.
+
+        This method generates a plot illustrating the lower, upper, and expected values of the AIN instance,
+        along with the alpha and beta levels. The plot includes:
+        - Vertical dashed lines at the lower, expected, and upper bounds.
+        - Horizontal solid lines representing the alpha and beta values across the intervals.
+
+        The plot is designed for clarity, with a dynamic y-axis range based on the maximum alpha and beta values,
+        and an x-axis that extends slightly beyond the bounds for enhanced visibility.
+
+        Parameters
+        ----------
+        ain_lw : float, optional
+            Line width for the alpha and beta lines. Default is 2.0.
+        ain_c : str, optional
+            Color for the interval lines. Default is 'k' (black).
+        ain_label : str, optional
+            Label for the alpha and beta lines, which can be used in plot legends. Default is an empty string.
+
+        Raises
+        ------
+        ValueError
+            If `ain_lw` is not a positive float or integer.
+        TypeError
+            If `ain_c` is not a string, or `ain_label` is not a string.
+
+        Examples
+        --------
+        >>> ain = AIN(1, 10, 3)
+        >>> ain.plot()
+
+        Notes
+        -----
+        - Vertical dashed lines mark the lower, expected, and upper values.
+        - Horizontal solid lines show alpha and beta values between the lower and expected, and expected and upper values, respectively.
+        - The y-axis is automatically adjusted to fit the maximum of the alpha and beta values, while the x-axis extends slightly to improve readability.
+        - Arrow markers are used to denote the direction of the axes, and grid lines are included for added reference.
+        """
+        if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
+            raise ValueError("ain_lw must be a positive float or integer.")
+
+        if not isinstance(ain_c, str):
+            raise TypeError("ain_c must be a string representing a valid matplotlib color.")
+
+        if not isinstance(ain_label, str):
+            raise TypeError("ain_label must be a string.")
+
+        a, b, c = self.lower, self.upper, self.expected
+
+        alpha, beta = self.alpha, self.beta
+
+        vkw = dict(ls='--', lw=ain_lw/2, c='k')
+        plt.plot([a, a], [0, alpha], **vkw)
+        plt.plot([c, c], [0, max(alpha, beta)], **vkw)
+        plt.plot([b, b], [0, beta], **vkw)
+
+        hkw = dict(ls='-', lw=ain_lw, c=ain_c)
+        plt.plot([a, c], [alpha, alpha], **hkw, label=ain_label)
+        plt.plot([c, b], [beta, beta], **hkw)
+
+        plt.gca().set_ylim([0, max(alpha, beta) * 1.1])
+        plt.gca().set_yticks(sorted([alpha, beta]))
+        yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
+        if alpha > beta:
+            yticklabels.reverse()
+        plt.gca().set_yticklabels(yticklabels, fontsize=12)
+
+        after_a = a - (b - a) * 0.05
+        after_b = b + (b - a) * 0.05
+        plt.gca().set_xlim([after_a, after_b])
+
+        plt.gca().set_xticks([a, c, b])
+        plt.gca().set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
+
+        plt.gca().spines[["top", "right"]].set_visible(False)
+
+        plt.plot(1, 0, ">k", transform=plt.gca().get_yaxis_transform(), clip_on=False)
+        plt.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
+        plt.ylabel('$pdf$')
+        plt.grid()
+        plt.show()

@@ -539,37 +539,51 @@ class AIN:
 
     def quantile(self, y):
         """
-        Computes the inverse cumulative distribution function (quantile function) for the AIN instance
-        at a given value of y. This function is the inverse of the CDF.
+        Compute the quantile value (inverse cumulative distribution function) for a given probability.
+
+        This method calculates the quantile, or the inverse cumulative distribution function (CDF),
+        for the AIN instance at a specified probability level `y`. The quantile represents the value
+        below which a given percentage of observations fall, based on the AIN instance’s parameters.
+        The function only operates within the probability range [0, 1].
 
         Parameters
         ----------
-        y : scalar
-            The probability value for which to compute the quantile. It should be in the range [0, 1].
+        y : int or float
+            The probability level at which to compute the quantile. Must be within the range [0, 1],
+            where 0 represents the minimum and 1 represents the maximum of the distribution.
 
         Returns
         -------
-        float or None
-            The quantile value corresponding to the given probability y. If y is outside the range [0, 1],
-            the method returns None and prints an error message.
+        float
+            The quantile value corresponding to the given probability `y`.
 
         Raises
         ------
         ValueError
-            If y is outside the range [0, 1].
+            If `y` is not a float or int, or if `y` is outside the valid range [0, 1].
+
+        Notes
+        -----
+        The method uses `self.alpha`, `self.beta`, `self.expected`, and `self.lower` attributes
+        to compute the quantile based on a piecewise formula:
+        - For values of `y` below `self.alpha * (self.expected - self.lower)`, the quantile
+          is calculated as `y / self.alpha + self.lower`.
+        - Otherwise, it is calculated as `(y - self.alpha * (self.expected - self.lower)) / self.beta + self.expected`.
 
         Examples
         --------
         >>> a = AIN(0, 10, 3)
-        >>> print(a.quantile(0.25))
+        >>> a.quantile(0.25)
         1.0714285714285714
-        >>> print(a.quantile(0.85))
+        >>> a.quantile(0.85)
         6.5
-        >>> print(a.quantile(1.1))
+        >>> a.quantile(1.1)
         Traceback (most recent call last):
-        ...
+            ...
         ValueError: Argument y = 1.1 is out of range; it should be between 0 and 1.
         """
+        if not isinstance(y, (int, float)):
+            raise ValueError(f'Argument y = {y} is not an integer or float.')
         if 0 <= y <= 1:
             if y < self.alpha * (self.expected - self.lower):
                 res = y / self.alpha + self.lower
@@ -659,5 +673,5 @@ class AIN:
 
         print("====================================")
 
-a = AIN(0, 10, 2)
-a.summary(precision=4)
+# a = AIN(0, 10, 2)
+# a.summary(precision=4)

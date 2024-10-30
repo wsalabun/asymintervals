@@ -52,7 +52,7 @@ A simple example demonstrating how to use the library.
    # Perform arithmetic operations between interval 'a' and interval 'b'
    c = a + b          # Addition of intervals 'a' and 'b'
    d = a * b          # Multiplication of intervals 'a' and 'b'
-   e = c / d          # Division of interval 'c' by interval 'd'
+   e = a / b          # Division of interval 'c' by interval 'd'
 
    # Plot the resulting intervals from the arithmetic operations
    c.plot()           # Plot interval 'c' resulting from addition

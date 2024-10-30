@@ -392,27 +392,42 @@ class AIN:
         >>> print(result)
         [2.5000, 5.0000]_{3.4657}
         """
+        if not isinstance(other, (float, int)):
+            raise TypeError(f"other variable is not a float or int")
         return other * self**(-1)
 
     def __pow__(self, n):
         """
-        Compute the power of an Asymmetric Interval Number (AIN) raised to the power of `n`.
+        Raise the Asymmetric Interval Number (AIN) instance to the power `n`.
+
+        This method computes the result of raising the AIN instance to the specified exponent `n`.
 
         Parameters
         ----------
         n : int or float
-            The exponent to raise the AIN to.
+            The exponent to which the AIN is raised. Valid values include positive or negative real numbers.
 
         Raises
         ------
+        TypeError
+            If `n` is not a float or int.
         ValueError
-            If the resulting operation yields a complex number due to an invalid exponent, or if `n = -1`
-            and the interval includes 0, as division by zero is undefined for this operation.
+            If the operation would result in a complex number (e.g., taking the square root of a negative value),
+            or if `n = -1` and the interval includes 0, as division by zero is undefined.
 
         Returns
         -------
         AIN
-            A new AIN object representing the result of the power operation.
+            A new AIN instance representing the interval raised to the power of `n`.
+
+        Notes
+        -----
+        - For `n = -1`, the method checks if 0 is within the interval. If it is, the operation is undefined
+          (division by zero) and raises a `ValueError`.
+        - When `n` results in a complex output (e.g., fractional exponents for negative values), a `ValueError`
+          is raised to indicate that complex results are unsupported.
+        - For other exponents, the power is applied individually to `self.lower`, `self.upper`, and `self.expected`,
+          with appropriate handling for intervals containing 0 to avoid undefined behaviors.
 
         Examples
         --------
@@ -433,6 +448,8 @@ class AIN:
         ValueError: The operation cannot be execute because it will be complex number in result for n = 0.5
 
         """
+        if not isinstance(n, (float, int)):
+            raise TypeError('n must be float or int')
         if isinstance(self.lower**n, complex):
             raise ValueError(f'The operation cannot be execute because it will be complex number in result for n = {n}')
         if self.lower < 0 and self.upper > 0:
@@ -458,62 +475,95 @@ class AIN:
 
     def pdf(self, x):
         """
-        Computes the probability density function (PDF) value for the Asymmetric Interval Number (AIN)
-        at a specified point x.
+        Calculate the probability density function (PDF) value for the Asymmetric Interval Number (AIN) at a given point `x`.
 
-        The PDF is defined piecewise for the AIN interval:
-        - Returns 0 if x is outside the interval defined by lower and upper.
-        - Returns alpha if x is between lower and expected.
-        - Returns beta if x is between expected and upper.
+        This method evaluates the probability density at `x` within the AIN-defined interval. The PDF describes
+        how the density is distributed across the AIN interval, with distinct values in different segments:
+        - Outside the interval `[self.lower, self.upper]`, the density is 0.
+        - Between `self.lower` and `self.expected`, the density is equal to `self.alpha`.
+        - Between `self.expected` and `self.upper`, the density is equal to `self.beta`.
 
         Parameters
         ----------
-        x : float
-            The point at which to evaluate the PDF.
+        x : int or float
+            The point at which to evaluate the PDF. Should be a numeric value.
 
         Returns
         -------
         float
-            The PDF value at the specified point x. Returns 0 if x is outside the interval.
+            The PDF value at the specified point `x`. The return value will be:
+            - 0 if `x` is outside the interval `[self.lower, self.upper]`.
+            - `self.alpha` if `x` is within the interval `[self.lower, self.expected]`.
+            - `self.beta` if `x` is within the interval `[self.expected, self.upper]`.
+
+        Raises
+        ------
+        TypeError
+            If `x` is not an integer or float.
 
         Examples
         --------
         >>> a = AIN(0, 10, 5)
-        >>> print(a.pdf(-1))
-        0
-        >>> print(a.pdf(3))
+        >>> a.pdf(-1)
+        0.0
+        >>> a.pdf(3)
         0.1
-        >>> print(a.pdf(7))
+        >>> a.pdf(7)
         0.1
-        >>> print(a.pdf(11))
-        0
+        >>> a.pdf(11)
+        0.0
         """
+        if not isinstance(x, (int, float)):
+            raise TypeError(f'Argument x must be an integer, not {type(x)}')
+
         if x < self.lower:
-            return 0
+            return 0.0
         elif x < self.expected:
             return self.alpha
         elif x < self.upper:
             return self.beta
         else:
-            return 0
+            return 0.0
 
     def cdf(self, x):
         """
-        Computes the cumulative distribution function (cdf) value for the AIN instance at a given value of x.
+        Calculate the cumulative distribution function (CDF) value for a specified input `x`.
+
+        This method evaluates the cumulative distribution function (CDF) of the AIN instance at
+        the given value `x`, indicating the probability that a random variable takes a value less
+        than or equal to `x`. The CDF value is computed based on the position of `x` relative to
+        the instance's defined bounds (`self.lower`, `self.expected`, `self.upper`).
 
         Parameters
         ----------
-        x : scalar
-            The value at which to evaluate the cdf.
+        x : int or float
+            The point at which to evaluate the CDF. This should be a numeric value.
 
         Returns
         -------
         float
-            The CDF value at x. The result will be:
-            - 0 if x is less than the lower bound.
-            - A linear interpolation between the lower bound and the expected value if x is between the lower bound and the expected value.
-            - A linear interpolation between the expected value and the upper bound if x is between the expected value and the upper bound.
-            - 1 if x is greater than or equal to the upper bound.
+            The computed CDF value at `x`, representing the cumulative probability up to `x`.
+            The output will follow these cases:
+            - 0 if `x` is less than the lower bound (`self.lower`).
+            - A linearly interpolated value between the lower bound and the expected value
+              if `x` is between `self.lower` and `self.expected`.
+            - A linearly interpolated value between the expected value and the upper bound
+              if `x` is between `self.expected` and `self.upper`.
+            - 1 if `x` is greater than or equal to the upper bound (`self.upper`).
+
+        Raises
+        ------
+        TypeError
+            If `x` is not an int or float.
+
+        Notes
+        -----
+        This method calculates the CDF using a piecewise approach:
+        - For `x < self.lower`, it returns 0.
+        - For `self.lower <= x < self.expected`, the CDF is calculated as `self.alpha * (x - self.lower)`.
+        - For `self.expected <= x < self.upper`, the CDF is calculated as
+          `self.alpha * (self.expected - self.lower) + self.beta * (x - self.expected)`.
+        - For `x >= self.upper`, it returns 1.
 
         Examples
         --------
@@ -527,6 +577,8 @@ class AIN:
         >>> a.cdf(20)
         1
         """
+        if not isinstance(x, (int, float)):
+            raise TypeError(f'x must be an int or float value.')
         if x < self.lower:
             res = 0
         elif x < self.expected:
@@ -560,7 +612,10 @@ class AIN:
         Raises
         ------
         ValueError
-            If `y` is not a float or int, or if `y` is outside the valid range [0, 1].
+            If `y` is outside the valid range [0, 1].
+
+        TypeError
+            If `y` is not a float or int value.
 
         Notes
         -----
@@ -583,7 +638,7 @@ class AIN:
         ValueError: Argument y = 1.1 is out of range; it should be between 0 and 1.
         """
         if not isinstance(y, (int, float)):
-            raise ValueError(f'Argument y = {y} is not an integer or float.')
+            raise TypeError(f'Argument y = {y} is not an integer or float.')
         if 0 <= y <= 1:
             if y < self.alpha * (self.expected - self.lower):
                 res = y / self.alpha + self.lower
@@ -592,7 +647,6 @@ class AIN:
         else:
             raise ValueError(f'Argument y = {y} is out of range; it should be between 0 and 1.')
         return res
-
 
     def summary(self, precision=6):
         """
@@ -610,7 +664,7 @@ class AIN:
 
         Raises
         ------
-        ValueError
+        TypeError
             If `precision` is not an integer, a ValueError is raised with an informative message.
 
         Attributes Printed
@@ -651,7 +705,7 @@ class AIN:
         entry, making it particularly useful for inspecting the AIN object's main parameters in detail.
         """
         if not isinstance(precision, int):
-            raise ValueError(f'Argument precision = {precision} but it must be an integer.')
+            raise TypeError(f'Argument precision = {precision} but it must be an integer.')
         print("=== AIN ============================")
         print(self)
         print("=== Summary ========================")

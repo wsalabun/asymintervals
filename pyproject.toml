@@ -3,7 +3,7 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pyAIN"
+name = "asymintervals"
 version = "1.0"
 authors = [
     {name = "Wojciech Sałabun", email = "w.salabun@il-pib.pl"},
@@ -32,5 +32,5 @@ classifiers = [
 #]
 
 [project.urls]
-Homepage = "https://github.com/wsalabun/pyain"
-Issues = "https://github.com/wsalabun/pyain/-/issues"
+Homepage = "https://github.com/wsalabun/asymintervals"
+Issues = "https://github.com/wsalabun/asymintervals/-/issues"

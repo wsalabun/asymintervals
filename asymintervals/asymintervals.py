@@ -829,7 +829,7 @@ class AIN:
 
         print("====================================")
 
-    def plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None):
+    def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
 
@@ -847,8 +847,6 @@ class AIN:
             Color for the interval lines. Accepts any valid matplotlib color string. Default is 'k' (black).
         ain_label : str, optional
             Label for the alpha and beta interval lines, used in plot legends. Default is an empty string.
-        ax : Axis or None
-            Axis to draw on or None. If None, then current Axis is used. Default is None.
 
         Raises
         ------
@@ -861,7 +859,6 @@ class AIN:
         --------
         >>> ain = AIN(1, 10, 3)
         >>> ain.plot(ain_label='Example')
-        >>> plt.show()
 
         Notes
         -----
@@ -881,41 +878,38 @@ class AIN:
         if not isinstance(ain_label, str):
             raise TypeError("ain_label must be a string.")
 
-        if ax is None:
-            ax = plt.gca()
-
         a, b, c = self.lower, self.upper, self.expected
 
         alpha, beta = self.alpha, self.beta
 
         vkw = dict(ls='--', lw=ain_lw/2, c='k')
-        ax.plot([a, a], [0, alpha], **vkw)
-        ax.plot([c, c], [0, max(alpha, beta)], **vkw)
-        ax.plot([b, b], [0, beta], **vkw)
+        plt.plot([a, a], [0, alpha], **vkw)
+        plt.plot([c, c], [0, max(alpha, beta)], **vkw)
+        plt.plot([b, b], [0, beta], **vkw)
 
         hkw = dict(ls='-', lw=ain_lw, c=ain_c)
-        ax.plot([a, c], [alpha, alpha], **hkw)
-        ax.plot([c, b], [beta, beta], **hkw)
+        plt.plot([a, c], [alpha, alpha], **hkw)
+        plt.plot([c, b], [beta, beta], **hkw)
 
-        ax.set_ylim([0, max(alpha, beta) * 1.1])
-        ax.set_yticks(sorted([alpha, beta]))
+        plt.gca().set_ylim([0, max(alpha, beta) * 1.1])
+        plt.gca().set_yticks(sorted([alpha, beta]))
         yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
         if alpha > beta:
             yticklabels.reverse()
-        ax.set_yticklabels(yticklabels, fontsize=12)
+        plt.gca().set_yticklabels(yticklabels, fontsize=12)
 
         after_a = a - (b - a) * 0.05
         after_b = b + (b - a) * 0.05
-        ax.set_xlim([after_a, after_b])
+        plt.gca().set_xlim([after_a, after_b])
 
-        ax.set_xticks([a, c, b])
-        ax.set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
+        plt.gca().set_xticks([a, c, b])
+        plt.gca().set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
 
-        ax.spines[["top", "right"]].set_visible(False)
+        plt.gca().spines[["top", "right"]].set_visible(False)
 
-        ax.plot(1, 0, ">k", transform=ax.get_yaxis_transform(), clip_on=False)
-        ax.plot(after_a, 1, "^k", transform=ax.get_xaxis_transform(), clip_on=False)
-        ax.set_ylabel('$pdf$')
-        ax.set_ylabel('pdf',labelpad=-15)
-        ax.set_xlabel(ain_label)
-
+        plt.plot(1, 0, ">k", transform=plt.gca().get_yaxis_transform(), clip_on=False)
+        plt.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
+        plt.ylabel('$pdf$')
+        plt.ylabel('pdf',labelpad=-15)
+        plt.xlabel(ain_label)
+        plt.show()

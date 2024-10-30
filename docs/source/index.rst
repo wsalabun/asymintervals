@@ -55,14 +55,9 @@ A simple example demonstrating how to use the library.
    e = c / d          # Division of interval 'c' by interval 'd'
 
    # Plot the resulting intervals from the arithmetic operations
-   plt.figure(figsize=(7,2))
-   plt.subplot(1,3,1)
    c.plot()           # Plot interval 'c' resulting from addition
-   plt.subplot(1,3,2)
    d.plot()           # Plot interval 'd' resulting from multiplication
-   plt.subplot(1,3,3)
    e.plot()           # Plot interval 'e' resulting from division
-   plt.show()
 
    # Print the results of the operations for each interval
    print(c)           # Output the details of interval 'c'

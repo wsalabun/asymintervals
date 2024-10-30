@@ -43,6 +43,7 @@ A simple example demonstrating how to use the library.
 
    # Import the AIN (Asymmetric Interval Number) class from the asymintervals module
    from asymintervals import AIN
+   import matplotlib.pyplot as plt
 
    # Initialize two AIN instances with specified lower, upper, and expected values
    a = AIN(0, 10, 2)  # Interval 'a' with lower=0, upper=10, expected=2
@@ -54,9 +55,14 @@ A simple example demonstrating how to use the library.
    e = c / d          # Division of interval 'c' by interval 'd'
 
    # Plot the resulting intervals from the arithmetic operations
+   plt.figure(figsize=(7,2))
+   plt.subplot(1,3,1)
    c.plot()           # Plot interval 'c' resulting from addition
+   plt.subplot(1,3,2)
    d.plot()           # Plot interval 'd' resulting from multiplication
+   plt.subplot(1,3,3)
    e.plot()           # Plot interval 'e' resulting from division
+   plt.show()
 
    # Print the results of the operations for each interval
    print(c)           # Output the details of interval 'c'
@@ -74,6 +80,7 @@ A simple example demonstrating how to use the library.
    d.summary()
    print("Summary for interval 'e':")
    e.summary()
+
 
 Full class description
 ^^^^^^^^^^^^^^^^^^^^^^

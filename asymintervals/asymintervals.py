@@ -768,9 +768,10 @@ class AIN:
         """
         Print a detailed, aligned summary of the AIN object's key attributes with specified precision.
 
-        This method displays a formatted summary of the AIN object's core attributes, each aligned
-        for readability. It includes a validation step for the `precision` parameter to ensure proper
-        input, raising an error if the value is not an integer.
+        This method displays a formatted summary of the AIN object's primary attributes, including
+        `alpha`, `beta`, `asymmetry`, expected value, variance, standard deviation, and midpoint.
+        Each attribute is displayed with the specified number of decimal places, allowing for a concise
+        or detailed view.
 
         Parameters
         ----------
@@ -782,16 +783,6 @@ class AIN:
         ------
         TypeError
             If `precision` is not an integer, a ValueError is raised with an informative message.
-
-        Attributes Printed
-        ------------------
-        - Alpha       : The `alpha` attribute of the AIN object.
-        - Beta        : The `beta` attribute of the AIN object.
-        - Assymetry   : The `asymmetry` attribute of the AIN object.
-        - Exp. val.   : The expected value of the AIN object.
-        - Variance    : The variance of the AIN object.
-        - Std. dev.   : The standard deviation of the AIN object.
-        - Midpoint    : The midpoint of the AIN object.
 
         Output Format
         -------------

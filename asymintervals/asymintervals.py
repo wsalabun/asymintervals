@@ -927,6 +927,38 @@ class AIN:
 
     @staticmethod
     def get_y_scale_max(ains_list):
+        """
+        Calculate the maximum scale value (y-axis) from a list of AIN objects.
+
+        Parameters
+        ----------
+        ains_list : list
+            A list of AIN (Asymmetric Interval Number) objects.
+
+        Returns
+        -------
+        float
+            The maximum scale value found in the list of AIN objects.
+
+        Raises
+        ------
+        TypeError
+            If ains_list is not a list or if any element in the list is not an AIN object.
+
+        Notes
+        -----
+        This function computes the maximum of the alpha and beta values across all AIN objects
+        in the provided list to determine the maximum scale value on the y-axis.
+
+        Example
+        -------
+        Assuming `ains_list` is a list of AIN objects:
+
+        >>> ains_list = [AIN(1, 10), AIN(2, 10, 4)]
+        >>> max_value = AIN.get_y_scale_max(ains_list)
+        >>> print(max_value)
+        0.375
+        """
         result = 0
         if not isinstance(ains_list, list):
             raise TypeError("ains_list should be a list")

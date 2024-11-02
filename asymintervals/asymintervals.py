@@ -899,8 +899,13 @@ class AIN:
             yticklabels.reverse()
         plt.gca().set_yticklabels(yticklabels, fontsize=12)
 
-        after_a = a - (b - a) * 0.05
-        after_b = b + (b - a) * 0.05
+        if a == b == c:
+            after_a = a - 0.5  # Arbitrary small extension for visual clarity
+            after_b = b + 0.5
+            plt.plot(a, 1, 'ko', markersize=3)
+        else:
+            after_a = a - (b - a) * 0.05
+            after_b = b + (b - a) * 0.05
         plt.gca().set_xlim([after_a, after_b])
 
         plt.gca().set_xticks([a, c, b])
@@ -926,7 +931,7 @@ class AIN:
             result = max(result, el.alpha, el.beta)
         return result
 
-    def add_to_plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None, global_max=None):
+    def add_to_plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None, y_scale_max=None):
         """
         Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
 
@@ -946,16 +951,16 @@ class AIN:
             Label for the x-axis to describe the plotted AIN. Default is an empty string.
         ax : matplotlib.axes.Axes, optional
             Matplotlib axis to add the plot to. If not provided, the current axis (`plt.gca()`) is used.
-        global_max : float or int, optional
+        y_scale_max : float or int, optional
             Maximum value for the y-axis to maintain consistent scaling across multiple AIN plots. If not provided,
             the y-axis is scaled to 1.1 times the maximum of alpha or beta for this AIN instance.
 
         Raises
         ------
         ValueError
-            If `ain_lw` is non-positive or if `global_max` is negative.
+            If `ain_lw` is non-positive or if `y_scale_max` is negative.
         TypeError
-            If `ain_lw` or `global_max` are not numeric, or if `ain_c` or `ain_label` are not strings.
+            If `ain_lw` or `y_scale_max` are not numeric, or if `ain_c` or `ain_label` are not strings.
 
         Examples
         --------
@@ -970,10 +975,10 @@ class AIN:
         <Figure size 800x300 with 0 Axes>
         >>> plt.subplot(1, 2, 1)
         <AxesSubplot:>
-        >>> a.add_to_plot(global_max=gl)
+        >>> a.add_to_plot(y_scale_max=gl)
         >>> plt.subplot(1, 2, 2)
         <AxesSubplot:>
-        >>> b.add_to_plot(global_max=gl)
+        >>> b.add_to_plot(y_scale_max=gl)
         >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
@@ -982,7 +987,7 @@ class AIN:
         - Horizontal solid lines represent the alpha level between the lower and expected values,
           and the beta level between the expected and upper values.
         - The y-axis limits are automatically adjusted based on the maximum of alpha and beta values unless
-          `global_max` is specified, while the x-axis extends slightly beyond the interval bounds for readability.
+          `y_scale_max` is specified, while the x-axis extends slightly beyond the interval bounds for readability.
         - The default y-axis label is set to 'pdf', and the x-axis label displays `ain_label`.
         """
         if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
@@ -1010,23 +1015,27 @@ class AIN:
         ax.plot([a, c], [alpha, alpha], **hkw)
         ax.plot([c, b], [beta, beta], **hkw)
 
-        if global_max is None:
+        if y_scale_max is None:
             ax.set_ylim([0, max(alpha, beta) * 1.1])
         else:
-            if not isinstance(global_max,(int, float)):
-                raise TypeError("global_max must be a float or integer")
-            if global_max < 0:
-                raise ValueError("global_max must be a positive value")
-            ax.set_ylim([0, global_max * 1.1])
-        # ax.set_ylim([0, global_max * 1.1]) # to delete?
+            if not isinstance(y_scale_max, (int, float)):
+                raise TypeError("y_scale_max must be a float or integer")
+            if y_scale_max < 0:
+                raise ValueError("y_scale_max must be a positive value")
+            ax.set_ylim([0, y_scale_max * 1.1])
         ax.set_yticks(sorted([alpha, beta]))
         yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
         if alpha > beta:
             yticklabels.reverse()
         ax.set_yticklabels(yticklabels, fontsize=12)
 
-        after_a = a - (b - a) * 0.05
-        after_b = b + (b - a) * 0.05
+        if a == b == c:
+            after_a = a - 0.5  # Arbitrary small extension for visual clarity
+            after_b = b + 0.5
+            ax.plot(a, 1, 'ko', markersize=3)
+        else:
+            after_a = a - (b - a) * 0.05
+            after_b = b + (b - a) * 0.05
         ax.set_xlim([after_a, after_b])
 
         ax.set_xticks([a, c, b])
@@ -1040,14 +1049,17 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
 
-# a = AIN(0,10,4)
-# b = AIN(0, 10, 7.5)
-#
-#
-# gl = AIN.get_global_max([a, b])
+a = AIN(0,10,4)
+b = AIN(10, 10, 10)
+
+b.plot()
+plt.show()
+# gl = AIN.get_y_scale_max([a, b])
 # plt.figure(figsize=(8, 3))
 # plt.subplot(1, 2, 1)
-# a.add_to_plot(global_max=gl)
+# a.add_to_plot(y_scale_max=gl)
 # plt.subplot(1, 2, 2)
-# b.add_to_plot(global_max=gl)
+# b.add_to_plot(y_scale_max=gl)
+# plt.show()
+#
 

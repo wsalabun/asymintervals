@@ -831,13 +831,10 @@ class AIN:
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
-        Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
+        Plot the intervals and key values of an Asymmetric Interval Number (AIN) instance.
 
-        This method visualizes the AIN instance by plotting the lower, expected, and upper values,
-        along with the corresponding alpha and beta levels. The plot includes:
-        - Vertical dashed lines at the lower, expected, and upper bounds of the interval.
-        - Horizontal solid lines representing the alpha and beta values across the intervals.
-        - Dynamic x- and y-axis scaling to ensure clarity.
+        Visualizes the AIN instance by plotting its lower, expected, and upper values,
+        along with corresponding alpha and beta levels.
 
         Parameters
         ----------
@@ -846,14 +843,19 @@ class AIN:
         ain_c : str, optional
             Color for the interval lines. Accepts any valid matplotlib color string. Default is 'k' (black).
         ain_label : str, optional
-            Label for the alpha and beta interval lines, used in plot legends. Default is an empty string.
+            Label for the x-axis, representing the AIN instance. Default is an empty string.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The Axes object containing the plot.
 
         Raises
         ------
         ValueError
-            Raised if `ain_lw` is not a positive float or integer.
+            If `ain_lw` is not a positive float or integer.
         TypeError
-            Raised if `ain_c` or `ain_label` is not a string.
+            If `ain_c` or `ain_label` is not a string.
 
         Examples
         --------
@@ -864,12 +866,12 @@ class AIN:
 
         Notes
         -----
-        - Vertical dashed lines are positioned at the lower, expected, and upper interval bounds.
-        - Horizontal solid lines show the alpha level between the lower and expected values, and
-          the beta level between the expected and upper values.
+        - Vertical dashed lines are placed at the lower, expected, and upper interval bounds.
+        - Horizontal solid lines represent the alpha level between the lower and expected values,
+          and the beta level between the expected and upper values.
         - Y-axis limits are automatically adjusted based on the maximum of alpha and beta, while
           the x-axis extends slightly beyond the interval bounds for readability.
-        - The default y-axis label is set to 'pdf', and the default x-axis label displays `ain_label`.
+        - The default y-axis label is set to 'pdf', and the x-axis label displays `ain_label`.
         """
         if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
             raise ValueError("ain_lw must be a positive float or integer.")
@@ -970,27 +972,34 @@ class AIN:
 
     def add_to_plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None, y_scale_max=None):
         """
-        Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
+        Plot the intervals and key values of an Asymmetric Interval Number (AIN) instance.
 
-        This method visualizes the AIN instance by plotting its lower, expected, and upper values,
-        along with the corresponding alpha and beta levels. The plot includes:
+        Visualizes the AIN instance by plotting its lower, expected, and upper values,
+        along with corresponding alpha and beta levels. The plot includes:
+
         - Vertical dashed lines at the lower, expected, and upper bounds of the interval.
         - Horizontal solid lines representing the alpha and beta values across the intervals.
-        - Dynamic x- and y-axis scaling to ensure clarity, with an optional global maximum for y-axis scaling.
+        - Dynamically scales the x- and y-axes for clarity, with an optional global maximum
+          for y-axis scaling.
 
         Parameters
         ----------
         ain_lw : float, optional
-            Line width for the alpha and beta interval lines. Must be a positive float or integer. Default is 2.0.
+            Line width for the alpha and beta interval lines. Default is 2.0.
         ain_c : str, optional
-            Color for the interval lines. Accepts any valid Matplotlib color string. Default is 'k' (black).
+            Color for the interval lines. Default is 'k' (black).
         ain_label : str, optional
-            Label for the x-axis to describe the plotted AIN. Default is an empty string.
+            Label for the x-axis describing the plotted AIN instance. Default is ''.
         ax : matplotlib.axes.Axes, optional
             Matplotlib axis to add the plot to. If not provided, the current axis (`plt.gca()`) is used.
         y_scale_max : float or int, optional
-            Maximum value for the y-axis to maintain consistent scaling across multiple AIN plots. If not provided,
-            the y-axis is scaled to 1.1 times the maximum of alpha or beta for this AIN instance.
+            Maximum value for the y-axis to ensure consistent scaling across multiple AIN plots.
+            If not provided, the y-axis is scaled to 1.1 times the maximum of alpha or beta for this AIN instance.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The matplotlib axis with the AIN plot.
 
         Raises
         ------
@@ -1004,7 +1013,7 @@ class AIN:
         >>> ain = AIN(1, 10, 5)
         >>> ain.add_to_plot(ain_label='Example Interval')
         <AxesSubplot:xlabel='Example Interval', ylabel='pdf'>
-        >>> # plt.show() # Uncomment this line to show the plot
+        >>> # plt.show() # Uncomment to display the plot
 
         >>> a = AIN(0, 10, 4.5)
         >>> b = AIN(0, 10, 7.5)
@@ -1020,7 +1029,7 @@ class AIN:
         >>> b.add_to_plot(y_scale_max=value_y_scale_max)
         <AxesSubplot:ylabel='pdf'>
         >>> plt.tight_layout()
-        >>> # plt.show() # Uncomment this line to show the plot
+        >>> # plt.show() # Uncomment to display the plot
 
         Notes
         -----
@@ -1028,8 +1037,8 @@ class AIN:
         - Horizontal solid lines represent the alpha level between the lower and expected values,
           and the beta level between the expected and upper values.
         - The y-axis limits are automatically adjusted based on the maximum of alpha and beta values unless
-          `y_scale_max` is specified, while the x-axis extends slightly beyond the interval bounds for readability.
-        - The default y-axis label is set to 'pdf', and the x-axis label displays `ain_label`.
+          `y_scale_max` is specified. The x-axis extends slightly beyond the interval bounds for readability.
+        - The default y-axis label is set to '$pdf$', and the x-axis label is set to `ain_label`.
         """
         if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
             raise ValueError("ain_lw must be a positive float or integer.")

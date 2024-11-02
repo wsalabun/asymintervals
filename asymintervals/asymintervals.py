@@ -859,6 +859,7 @@ class AIN:
         --------
         >>> ain = AIN(1, 10, 3)
         >>> ain.plot(ain_label='Example')
+        >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
         -----
@@ -912,16 +913,16 @@ class AIN:
         plt.ylabel('$pdf$')
         plt.ylabel('pdf',labelpad=-15)
         plt.xlabel(ain_label)
-        plt.show()
+
 
     @staticmethod
-    def get_global_max(ains_list):
+    def get_y_scale_max(ains_list):
         result = 0
         if not isinstance(ains_list, list):
             raise TypeError("ains_list should be a list")
         for el in ains_list:
             if not isinstance(el, AIN):
-                raise TypeError("each el must be a AIN object")
+                raise TypeError("Each element in the list must be a AIN object")
             result = max(result, el.alpha, el.beta)
         return result
 
@@ -958,22 +959,22 @@ class AIN:
 
         Examples
         --------
-        # >>> ain = AIN(1, 10, 5)
-        # >>> ain.add_to_plot(ain_label='Example Interval')
-        # >>> plt.show()
+            >>> ain = AIN(1, 10, 5)
+            >>> ain.add_to_plot(ain_label='Example Interval')
+            >>> # plt.show() # Uncomment this line to show the plot
 
         >>> a = AIN(0, 10, 4.5)
         >>> b = AIN(0, 10, 7.5)
-        >>> gl = AIN.get_global_max([a, b])
+        >>> gl = AIN.get_y_scale_max([a, b])
         >>> plt.figure(figsize=(8, 3))
         <Figure size 800x300 with 0 Axes>
         >>> plt.subplot(1, 2, 1)
-        <Axes: >
+        <AxesSubplot:>
         >>> a.add_to_plot(global_max=gl)
         >>> plt.subplot(1, 2, 2)
-        <Axes: >
+        <AxesSubplot:>
         >>> b.add_to_plot(global_max=gl)
-        >>> plt.show()
+        >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
         -----

@@ -964,9 +964,10 @@ class AIN:
 
         Examples
         --------
-            >>> ain = AIN(1, 10, 5)
-            >>> ain.add_to_plot(ain_label='Example Interval')
-            >>> # plt.show() # Uncomment this line to show the plot
+        >>> ain = AIN(1, 10, 5)
+        >>> ain.add_to_plot(ain_label='Example Interval')
+        <AxesSubplot:xlabel='Example Interval', ylabel='pdf'>
+        >>> # plt.show() # Uncomment this line to show the plot
 
         >>> a = AIN(0, 10, 4.5)
         >>> b = AIN(0, 10, 7.5)
@@ -976,9 +977,11 @@ class AIN:
         >>> plt.subplot(1, 2, 1)
         <AxesSubplot:>
         >>> a.add_to_plot(y_scale_max=value_y_scale_max)
+        <AxesSubplot:ylabel='pdf'>
         >>> plt.subplot(1, 2, 2)
         <AxesSubplot:>
         >>> b.add_to_plot(y_scale_max=value_y_scale_max)
+        <AxesSubplot:ylabel='pdf'>
         >>> plt.tight_layout()
         >>> # plt.show() # Uncomment this line to show the plot
 
@@ -1049,6 +1052,7 @@ class AIN:
         ax.set_ylabel('$pdf$')
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
+        return ax
 
 
 a = AIN(0,10,4)

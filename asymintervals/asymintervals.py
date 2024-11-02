@@ -958,10 +958,11 @@ class AIN:
 
         Examples
         --------
-        >>> ain = AIN(1, 10, 5)
-        >>> ain.add_to_plot(ain_label='Example Interval')
+        # >>> ain = AIN(1, 10, 5)
+        # >>> ain.add_to_plot(ain_label='Example Interval')
+        # >>> plt.show()
 
-        >>> a = AIN(0, 10, 4)
+        >>> a = AIN(0, 10, 4.5)
         >>> b = AIN(0, 10, 7.5)
         >>> gl = AIN.get_global_max([a, b])
         >>> plt.figure(figsize=(8, 3))
@@ -1016,7 +1017,7 @@ class AIN:
             if global_max < 0:
                 raise ValueError("global_max must be a positive value")
             ax.set_ylim([0, global_max * 1.1])
-        ax.set_ylim([0, global_max * 1.1])
+        # ax.set_ylim([0, global_max * 1.1]) # to delete?
         ax.set_yticks(sorted([alpha, beta]))
         yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
         if alpha > beta:
@@ -1038,14 +1039,14 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
 
-a = AIN(0,10,4)
-b = AIN(0, 10, 7.5)
+# a = AIN(0,10,4)
+# b = AIN(0, 10, 7.5)
+#
+#
+# gl = AIN.get_global_max([a, b])
+# plt.figure(figsize=(8, 3))
+# plt.subplot(1, 2, 1)
+# a.add_to_plot(global_max=gl)
+# plt.subplot(1, 2, 2)
+# b.add_to_plot(global_max=gl)
 
-
-gl = AIN.get_global_max([a, b])
-plt.figure(figsize=(8, 3))
-plt.subplot(1, 2, 1)
-a.add_to_plot(global_max=gl)
-plt.subplot(1, 2, 2)
-b.add_to_plot(global_max=gl)
-plt.show()

@@ -913,3 +913,139 @@ class AIN:
         plt.ylabel('pdf',labelpad=-15)
         plt.xlabel(ain_label)
         plt.show()
+
+    @staticmethod
+    def get_global_max(ains_list):
+        result = 0
+        if not isinstance(ains_list, list):
+            raise TypeError("ains_list should be a list")
+        for el in ains_list:
+            if not isinstance(el, AIN):
+                raise TypeError("each el must be a AIN object")
+            result = max(result, el.alpha, el.beta)
+        return result
+
+    def add_to_plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None, global_max=None):
+        """
+        Plots the intervals and key values of an Asymmetric Interval Number (AIN) instance.
+
+        This method visualizes the AIN instance by plotting its lower, expected, and upper values,
+        along with the corresponding alpha and beta levels. The plot includes:
+        - Vertical dashed lines at the lower, expected, and upper bounds of the interval.
+        - Horizontal solid lines representing the alpha and beta values across the intervals.
+        - Dynamic x- and y-axis scaling to ensure clarity, with an optional global maximum for y-axis scaling.
+
+        Parameters
+        ----------
+        ain_lw : float, optional
+            Line width for the alpha and beta interval lines. Must be a positive float or integer. Default is 2.0.
+        ain_c : str, optional
+            Color for the interval lines. Accepts any valid Matplotlib color string. Default is 'k' (black).
+        ain_label : str, optional
+            Label for the x-axis to describe the plotted AIN. Default is an empty string.
+        ax : matplotlib.axes.Axes, optional
+            Matplotlib axis to add the plot to. If not provided, the current axis (`plt.gca()`) is used.
+        global_max : float or int, optional
+            Maximum value for the y-axis to maintain consistent scaling across multiple AIN plots. If not provided,
+            the y-axis is scaled to 1.1 times the maximum of alpha or beta for this AIN instance.
+
+        Raises
+        ------
+        ValueError
+            If `ain_lw` is non-positive or if `global_max` is negative.
+        TypeError
+            If `ain_lw` or `global_max` are not numeric, or if `ain_c` or `ain_label` are not strings.
+
+        Examples
+        --------
+        >>> ain = AIN(1, 10, 5)
+        >>> ain.add_to_plot(ain_label='Example Interval')
+
+        >>> a = AIN(0, 10, 4)
+        >>> b = AIN(0, 10, 7.5)
+        >>> gl = AIN.get_global_max([a, b])
+        >>> plt.figure(figsize=(8, 3))
+        <Figure size 800x300 with 0 Axes>
+        >>> plt.subplot(1, 2, 1)
+        <Axes: >
+        >>> a.add_to_plot(global_max=gl)
+        >>> plt.subplot(1, 2, 2)
+        <Axes: >
+        >>> b.add_to_plot(global_max=gl)
+        >>> plt.show()
+
+        Notes
+        -----
+        - Vertical dashed lines are positioned at the lower, expected, and upper bounds of the interval.
+        - Horizontal solid lines represent the alpha level between the lower and expected values,
+          and the beta level between the expected and upper values.
+        - The y-axis limits are automatically adjusted based on the maximum of alpha and beta values unless
+          `global_max` is specified, while the x-axis extends slightly beyond the interval bounds for readability.
+        - The default y-axis label is set to 'pdf', and the x-axis label displays `ain_label`.
+        """
+        if not isinstance(ain_lw, (float, int)) or ain_lw <= 0:
+            raise ValueError("ain_lw must be a positive float or integer.")
+
+        if not isinstance(ain_c, str):
+            raise TypeError("ain_c must be a string representing a valid matplotlib color.")
+
+        if not isinstance(ain_label, str):
+            raise TypeError("ain_label must be a string.")
+
+        if ax is None:
+            ax = plt.gca()
+
+        a, b, c = self.lower, self.upper, self.expected
+
+        alpha, beta = self.alpha, self.beta
+
+        vkw = dict(ls='--', lw=ain_lw / 2, c='k')
+        ax.plot([a, a], [0, alpha], **vkw)
+        ax.plot([c, c], [0, max(alpha, beta)], **vkw)
+        ax.plot([b, b], [0, beta], **vkw)
+
+        hkw = dict(ls='-', lw=ain_lw, c=ain_c)
+        ax.plot([a, c], [alpha, alpha], **hkw)
+        ax.plot([c, b], [beta, beta], **hkw)
+
+        if global_max is None:
+            ax.set_ylim([0, max(alpha, beta) * 1.1])
+        else:
+            if not isinstance(global_max,(int, float)):
+                raise TypeError("global_max must be a float or integer")
+            if global_max < 0:
+                raise ValueError("global_max must be a positive value")
+            ax.set_ylim([0, global_max * 1.1])
+        ax.set_ylim([0, global_max * 1.1])
+        ax.set_yticks(sorted([alpha, beta]))
+        yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
+        if alpha > beta:
+            yticklabels.reverse()
+        ax.set_yticklabels(yticklabels, fontsize=12)
+
+        after_a = a - (b - a) * 0.05
+        after_b = b + (b - a) * 0.05
+        ax.set_xlim([after_a, after_b])
+
+        ax.set_xticks([a, c, b])
+        ax.set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
+
+        ax.spines[["top", "right"]].set_visible(False)
+
+        ax.plot(1, 0, ">k", transform=ax.get_yaxis_transform(), clip_on=False)
+        ax.plot(after_a, 1, "^k", transform=ax.get_xaxis_transform(), clip_on=False)
+        ax.set_ylabel('$pdf$')
+        ax.set_ylabel('pdf', labelpad=-15)
+        ax.set_xlabel(ain_label)
+
+a = AIN(0,10,4)
+b = AIN(0, 10, 7.5)
+
+
+gl = AIN.get_global_max([a, b])
+plt.figure(figsize=(8, 3))
+plt.subplot(1, 2, 1)
+a.add_to_plot(global_max=gl)
+plt.subplot(1, 2, 2)
+b.add_to_plot(global_max=gl)
+plt.show()

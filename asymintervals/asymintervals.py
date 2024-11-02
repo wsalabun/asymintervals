@@ -859,6 +859,7 @@ class AIN:
         --------
         >>> ain = AIN(1, 10, 3)
         >>> ain.plot(ain_label='Example')
+        <AxesSubplot:xlabel='Example', ylabel='pdf'>
         >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
@@ -884,40 +885,44 @@ class AIN:
         alpha, beta = self.alpha, self.beta
 
         vkw = dict(ls='--', lw=ain_lw/2, c='k')
-        plt.plot([a, a], [0, alpha], **vkw)
-        plt.plot([c, c], [0, max(alpha, beta)], **vkw)
-        plt.plot([b, b], [0, beta], **vkw)
+
+        ax = plt.gca()
+
+        ax.plot([a, a], [0, alpha], **vkw)
+        ax.plot([c, c], [0, max(alpha, beta)], **vkw)
+        ax.plot([b, b], [0, beta], **vkw)
 
         hkw = dict(ls='-', lw=ain_lw, c=ain_c)
-        plt.plot([a, c], [alpha, alpha], **hkw)
-        plt.plot([c, b], [beta, beta], **hkw)
+        ax.plot([a, c], [alpha, alpha], **hkw)
+        ax.plot([c, b], [beta, beta], **hkw)
 
-        plt.gca().set_ylim([0, max(alpha, beta) * 1.1])
-        plt.gca().set_yticks(sorted([alpha, beta]))
+        ax.set_ylim([0, max(alpha, beta) * 1.1])
+        ax.set_yticks(sorted([alpha, beta]))
         yticklabels = [f"{alpha:.4f}", f"{beta:.4f}"]
         if alpha > beta:
             yticklabels.reverse()
-        plt.gca().set_yticklabels(yticklabels, fontsize=12)
+        ax.set_yticklabels(yticklabels, fontsize=12)
 
         if a == b == c:
             after_a = a - 0.5  # Arbitrary small extension for visual clarity
             after_b = b + 0.5
-            plt.plot(a, 1, 'ko', markersize=3)
+            ax.plot(a, 1, 'ko', markersize=3)
         else:
             after_a = a - (b - a) * 0.05
             after_b = b + (b - a) * 0.05
-        plt.gca().set_xlim([after_a, after_b])
+        ax.set_xlim([after_a, after_b])
 
-        plt.gca().set_xticks([a, c, b])
-        plt.gca().set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
+        ax.set_xticks([a, c, b])
+        ax.set_xticklabels([f"{a:.4f}", f"{c:.4f}", f"{b:.4f}"], fontsize=12)
 
-        plt.gca().spines[["top", "right"]].set_visible(False)
+        ax.spines[["top", "right"]].set_visible(False)
 
-        plt.plot(1, 0, ">k", transform=plt.gca().get_yaxis_transform(), clip_on=False)
-        plt.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
-        plt.ylabel('$pdf$')
-        plt.ylabel('pdf',labelpad=-15)
-        plt.xlabel(ain_label)
+        ax.plot(1, 0, ">k", transform=plt.gca().get_yaxis_transform(), clip_on=False)
+        ax.plot(after_a, 1, "^k", transform=plt.gca().get_xaxis_transform(), clip_on=False)
+        ax.set_ylabel('$pdf$')
+        ax.set_ylabel('pdf',labelpad=-15)
+        ax.set_xlabel(ain_label)
+        return ax
 
 
     @staticmethod

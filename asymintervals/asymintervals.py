@@ -970,15 +970,15 @@ class AIN:
 
         >>> a = AIN(0, 10, 4.5)
         >>> b = AIN(0, 10, 7.5)
-        >>> gl = AIN.get_y_scale_max([a, b])
+        >>> value_y_scale_max = AIN.get_y_scale_max([a, b])
         >>> plt.figure(figsize=(8, 3))
         <Figure size 800x300 with 0 Axes>
         >>> plt.subplot(1, 2, 1)
         <AxesSubplot:>
-        >>> a.add_to_plot(y_scale_max=gl)
+        >>> a.add_to_plot(y_scale_max=value_y_scale_max)
         >>> plt.subplot(1, 2, 2)
         <AxesSubplot:>
-        >>> b.add_to_plot(y_scale_max=gl)
+        >>> b.add_to_plot(y_scale_max=value_y_scale_max)
         >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
@@ -1054,12 +1054,12 @@ b = AIN(10, 10, 10)
 
 b.plot()
 plt.show()
-# gl = AIN.get_y_scale_max([a, b])
+# value_y_scale_max = AIN.get_y_scale_max([a, b])
 # plt.figure(figsize=(8, 3))
 # plt.subplot(1, 2, 1)
-# a.add_to_plot(y_scale_max=gl)
+# a.add_to_plot(y_scale_max=value_y_scale_max)
 # plt.subplot(1, 2, 2)
-# b.add_to_plot(y_scale_max=gl)
+# b.add_to_plot(y_scale_max=value_y_scale_max)
 # plt.show()
 #
 

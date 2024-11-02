@@ -979,6 +979,7 @@ class AIN:
         >>> plt.subplot(1, 2, 2)
         <AxesSubplot:>
         >>> b.add_to_plot(y_scale_max=value_y_scale_max)
+        >>> plt.tight_layout()
         >>> # plt.show() # Uncomment this line to show the plot
 
         Notes
@@ -1049,17 +1050,17 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
 
-a = AIN(0,10,4)
-b = AIN(10, 10, 10)
 
-b.plot()
+a = AIN(0,10,4)
+b = AIN(0, 10, 9)
+
+value_y_scale_max = AIN.get_y_scale_max([a, b])
+plt.figure(figsize=(8, 3))
+plt.subplot(1, 2, 1)
+a.add_to_plot(y_scale_max=value_y_scale_max)
+plt.subplot(1, 2, 2)
+b.add_to_plot(y_scale_max=value_y_scale_max)
+plt.tight_layout()
 plt.show()
-# value_y_scale_max = AIN.get_y_scale_max([a, b])
-# plt.figure(figsize=(8, 3))
-# plt.subplot(1, 2, 1)
-# a.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.subplot(1, 2, 2)
-# b.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.show()
-#
+
 

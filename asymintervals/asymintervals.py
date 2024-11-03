@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import quad
+
 
 class AIN:
     def __init__(self, lower: float, upper: float, expected: float = None):
@@ -1146,11 +1148,40 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
         return ax
+    def __gt__(self, other):
+        a=self.lower
+        b=self.upper
+        c=self.expected
+        d=other.lower
+        e=other.upper
+        f=other.expected
+        alpha = self.alpha
+        beta = self.beta
+        gamma = other.alpha
+        omega = other.beta
 
+        def integrand(y, density_y, alpha, beta, a, c, b):
+            term1 = alpha * (c - max(y, a)) if y < c else 0
+            term2 = beta * (b - max(y, c)) if y < b else 0
+            return density_y * (term1 + term2)
 
-a = AIN(0,10,4)
-b = AIN(0, 10, 4)
+        # Obliczanie całki dla dwóch przedziałów
+        P_X_greater_Y_part1, _ = quad(integrand, d, f, args=(gamma, alpha, beta, a, c, b))
+        P_X_greater_Y_part2, _ = quad(integrand, f, e, args=(omega, alpha, beta, a, c, b))
+
+        # Całkowite prawdopodobieństwo
+        P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2
+        return P_X_greater_Y
+
+a = AIN(2,12,4)
+b = AIN(-2, 10, 2)
+c = AIN(15,20,16.1)
+e = AIN(-2, 10, 2)
+f = AIN(-2, 10, 9)
+print(e>f)
 print(a == AIN(0,10,4.1))
+a.summary(8)
+b.summary(8)
 #
 # value_y_scale_max = AIN.get_y_scale_max([a, b])
 # plt.figure(figsize=(8, 3))

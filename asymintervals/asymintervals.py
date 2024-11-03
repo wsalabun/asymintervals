@@ -1173,12 +1173,18 @@ class AIN:
         P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2
         return P_X_greater_Y
 
+    def __lt__(self, other):
+        return other > self
+
+
 a = AIN(2,12,4)
 b = AIN(-2, 10, 2)
 c = AIN(15,20,16.1)
 e = AIN(-2, 10, 2)
 f = AIN(-2, 10, 9)
-print(e>f)
+print(f"test {a.probability_X_greater_Y(b)}")
+print(a>b)
+print(a<c)
 print(a == AIN(0,10,4.1))
 a.summary(8)
 b.summary(8)

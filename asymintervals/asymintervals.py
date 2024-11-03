@@ -590,6 +590,53 @@ class AIN:
         res = AIN(new_a, new_b, new_c)
         return res
 
+    def __eq__(self, other):
+        """
+        Check if this AIN instance is equal to another AIN instance, float, or int.
+
+        Parameters
+        ----------
+        other : AIN or float or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        bool
+            True if both objects are equal, False otherwise.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - Two AIN instances are considered equal if their lower, upper, and expected values are identical.
+        - An AIN instance can also be equal to a float or int if its lower, upper, and expected values are all equal to `other`.
+
+        Examples
+        --------
+        >>> ain1 = AIN(1, 10, 3)
+        >>> ain2 = AIN(1, 10, 3)
+        >>> ain1 == ain2
+        True
+
+        >>> ain = AIN(2, 2, 2)
+        >>> ain == 2
+        True
+
+        >>> ain = AIN(1, 10, 3)
+        >>> ain == 3.0
+        False
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other variable must be an instance of AIN or float or int")
+        if isinstance(other, AIN):
+            return self.lower == other.lower and self.upper == other.upper and self.expected == other.expected
+        if isinstance(other, (int, float)):
+            return self.lower == self.expected == self.upper == other
+        return False
+
     def pdf(self, x):
         """
         Calculate the probability density function (PDF) value for the Asymmetric Interval Number (AIN) at a given point `x`.
@@ -1102,15 +1149,16 @@ class AIN:
 
 
 a = AIN(0,10,4)
-b = AIN(0, 10, 9)
-
-value_y_scale_max = AIN.get_y_scale_max([a, b])
-plt.figure(figsize=(8, 3))
-plt.subplot(1, 2, 1)
-a.add_to_plot(y_scale_max=value_y_scale_max)
-plt.subplot(1, 2, 2)
-b.add_to_plot(y_scale_max=value_y_scale_max)
-plt.tight_layout()
-plt.show()
+b = AIN(0, 10, 4)
+print(a == AIN(0,10,4.1))
+#
+# value_y_scale_max = AIN.get_y_scale_max([a, b])
+# plt.figure(figsize=(8, 3))
+# plt.subplot(1, 2, 1)
+# a.add_to_plot(y_scale_max=value_y_scale_max)
+# plt.subplot(1, 2, 2)
+# b.add_to_plot(y_scale_max=value_y_scale_max)
+# plt.tight_layout()
+# plt.show()
 
 

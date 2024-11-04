@@ -1145,12 +1145,7 @@ class AIN:
         return False
 
     def __gt__(self, other):
-        a=self.lower
-        b=self.upper
-        c=self.expected
-        d=other.lower
-        e=other.upper
-        f=other.expected
+
         alpha = self.alpha
         beta = self.beta
         gamma = other.alpha
@@ -1162,8 +1157,8 @@ class AIN:
             return density_y * (term1 + term2)
 
         # Obliczanie całki dla dwóch przedziałów
-        P_X_greater_Y_part1, _ = quad(integrand, d, f, args=(gamma, alpha, beta, a, c, b))
-        P_X_greater_Y_part2, _ = quad(integrand, f, e, args=(omega, alpha, beta, a, c, b))
+        P_X_greater_Y_part1, _ = quad(integrand, other.lower, other.expected, args=(gamma, alpha, beta, self.lower, self.expected, self.upper))
+        P_X_greater_Y_part2, _ = quad(integrand, other.expected, other.upper, args=(omega, alpha, beta, self.lower, self.expected, self.upper))
 
         # Całkowite prawdopodobieństwo
         P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2
@@ -1181,9 +1176,7 @@ f = AIN(-2, 10, 9)
 print(a>b)
 print(a<c)
 print(a == AIN(0,10,4.1))
-a.summary(8)
-b.summary(8)
-#
+
 # value_y_scale_max = AIN.get_y_scale_max([a, b])
 # plt.figure(figsize=(8, 3))
 # plt.subplot(1, 2, 1)

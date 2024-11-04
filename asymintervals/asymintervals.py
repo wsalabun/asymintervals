@@ -1096,4 +1096,3 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
         return ax
-

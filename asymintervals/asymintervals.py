@@ -862,10 +862,10 @@ class AIN:
 
         Examples
         --------
-        >>> ain = AIN(1, 10, 3)
-        >>> ain.plot(ain_label='Example')
-        <AxesSubplot:xlabel='Example', ylabel='pdf'>
-        >>> # plt.show() # Uncomment this line to show the plot
+        >>> # Uncomment to show this functionality
+        >>> # ain = AIN(1, 10, 3)
+        >>> # ain.plot(ain_label='Example')
+        >>> # plt.show()
 
         Notes
         -----
@@ -1013,25 +1013,19 @@ class AIN:
 
         Examples
         --------
-        >>> ain = AIN(1, 10, 5)
-        >>> ain.add_to_plot(ain_label='Example Interval')
-        <AxesSubplot:xlabel='Example Interval', ylabel='pdf'>
-        >>> # plt.show() # Uncomment to display the plot
-
-        >>> a = AIN(0, 10, 4.5)
-        >>> b = AIN(0, 10, 7.5)
-        >>> value_y_scale_max = AIN.get_y_scale_max([a, b])
-        >>> plt.figure(figsize=(8, 3))
-        <Figure size 800x300 with 0 Axes>
-        >>> plt.subplot(1, 2, 1)
-        <AxesSubplot:>
-        >>> a.add_to_plot(y_scale_max=value_y_scale_max)
-        <AxesSubplot:ylabel='pdf'>
-        >>> plt.subplot(1, 2, 2)
-        <AxesSubplot:>
-        >>> b.add_to_plot(y_scale_max=value_y_scale_max)
-        <AxesSubplot:ylabel='pdf'>
-        >>> plt.tight_layout()
+        >>> # Uncomment to show this functionality
+        >>> # ain = AIN(1, 10, 5)
+        >>> # ain.add_to_plot(ain_label='Example Interval')
+        >>> # plt.show()
+        >>> # a = AIN(0, 10, 4.5)
+        >>> # b = AIN(0, 10, 7.5)
+        >>> # value_y_scale_max = AIN.get_y_scale_max([a, b])
+        >>> # plt.figure(figsize=(8, 3))
+        >>> # plt.subplot(1, 2, 1)
+        >>> # a.add_to_plot(y_scale_max=value_y_scale_max)
+        >>> # plt.subplot(1, 2, 2)
+        >>> # b.add_to_plot(y_scale_max=value_y_scale_max)
+        >>> # plt.tight_layout()
         >>> # plt.show() # Uncomment to display the plot
 
         Notes

@@ -592,52 +592,6 @@ class AIN:
         res = AIN(new_a, new_b, new_c)
         return res
 
-    def __eq__(self, other):
-        """
-        Check if this AIN instance is equal to another AIN instance, float, or int.
-
-        Parameters
-        ----------
-        other : AIN or float or int
-            The object to compare with this AIN instance.
-
-        Returns
-        -------
-        bool
-            True if both objects are equal, False otherwise.
-
-        Raises
-        ------
-        TypeError
-            If `other` is not an instance of AIN, float, or int.
-
-        Notes
-        -----
-        - Two AIN instances are considered equal if their lower, upper, and expected values are identical.
-        - An AIN instance can also be equal to a float or int if its lower, upper, and expected values are all equal to `other`.
-
-        Examples
-        --------
-        >>> ain1 = AIN(1, 10, 3)
-        >>> ain2 = AIN(1, 10, 3)
-        >>> ain1 == ain2
-        True
-
-        >>> ain = AIN(2, 2, 2)
-        >>> ain == 2
-        True
-
-        >>> ain = AIN(1, 10, 3)
-        >>> ain == 3.0
-        False
-        """
-        if not isinstance(other, (AIN, float, int)):
-            raise TypeError("other variable must be an instance of AIN or float or int")
-        if isinstance(other, AIN):
-            return self.lower == other.lower and self.upper == other.upper and self.expected == other.expected
-        if isinstance(other, (int, float)):
-            return self.lower == self.expected == self.upper == other
-        return False
 
     def pdf(self, x):
         """
@@ -1148,54 +1102,4 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
         return ax
-    def __gt__(self, other):
-        a=self.lower
-        b=self.upper
-        c=self.expected
-        d=other.lower
-        e=other.upper
-        f=other.expected
-        alpha = self.alpha
-        beta = self.beta
-        gamma = other.alpha
-        omega = other.beta
-
-        def integrand(y, density_y, alpha, beta, a, c, b):
-            term1 = alpha * (c - max(y, a)) if y < c else 0
-            term2 = beta * (b - max(y, c)) if y < b else 0
-            return density_y * (term1 + term2)
-
-        # Obliczanie całki dla dwóch przedziałów
-        P_X_greater_Y_part1, _ = quad(integrand, d, f, args=(gamma, alpha, beta, a, c, b))
-        P_X_greater_Y_part2, _ = quad(integrand, f, e, args=(omega, alpha, beta, a, c, b))
-
-        # Całkowite prawdopodobieństwo
-        P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2
-        return P_X_greater_Y
-
-    def __lt__(self, other):
-        return other > self
-
-
-a = AIN(2,12,4)
-b = AIN(-2, 10, 2)
-c = AIN(15,20,16.1)
-e = AIN(-2, 10, 2)
-f = AIN(-2, 10, 9)
-print(f"test {a.probability_X_greater_Y(b)}")
-print(a>b)
-print(a<c)
-print(a == AIN(0,10,4.1))
-a.summary(8)
-b.summary(8)
-#
-# value_y_scale_max = AIN.get_y_scale_max([a, b])
-# plt.figure(figsize=(8, 3))
-# plt.subplot(1, 2, 1)
-# a.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.subplot(1, 2, 2)
-# b.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.tight_layout()
-# plt.show()
-
 

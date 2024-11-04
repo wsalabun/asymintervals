@@ -42,8 +42,7 @@ If the ``asymintervals`` library has contributed to a scientific publication, we
       pages={in press},
       year={2024},
       publisher={Elsevier}
-# Print the results of the operations for each interval
-   }
+
 
 Example
 ^^^^^^^

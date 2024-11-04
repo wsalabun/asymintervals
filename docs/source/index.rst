@@ -5,20 +5,18 @@
 
 Welcome to asymintervals' documentation!
 ========================================
-.. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
-  :target: https://numfocus.org
+..
+   .. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+     :target: https://numfocus.org
+   .. image:: https://img.shields.io/pypi/dm/scipy.svg?label=Pypi%20downloads
+     :target: https://pypi.org/project/scipy/
+   .. image:: https://img.shields.io/conda/dn/conda-forge/scipy.svg?label=Conda%20downloads
+     :target: https://anaconda.org/conda-forge/scipy
+   .. image:: https://img.shields.io/badge/stackoverflow-Ask%20questions-blue.svg
+     :target: https://stackoverflow.com/questions/tagged/scipy
+   .. image:: https://img.shields.io/badge/DOI-10.1038%2Fs41592--019--0686--2-blue.svg
+     :target: https://www.nature.com/articles/s41592-019-0686-2
 
-.. image:: https://img.shields.io/pypi/dm/scipy.svg?label=Pypi%20downloads
-  :target: https://pypi.org/project/scipy/
-
-.. image:: https://img.shields.io/conda/dn/conda-forge/scipy.svg?label=Conda%20downloads
-  :target: https://anaconda.org/conda-forge/scipy
-
-.. image:: https://img.shields.io/badge/stackoverflow-Ask%20questions-blue.svg
-  :target: https://stackoverflow.com/questions/tagged/scipy
-
-.. image:: https://img.shields.io/badge/DOI-10.1038%2Fs41592--019--0686--2-blue.svg
-  :target: https://www.nature.com/articles/s41592-019-0686-2
 The ``asymintervals`` library introduces a novel and unique approach with **Asymmetric Interval Numbers (AINs)**, combining the simplicity of classical interval numbers with advanced capabilities for modeling uncertainty.
 
 AINs integrate the expected value with the interval, offering a more accurate representation of data uncertainty compared to traditional interval numbers. This library provides a complete toolkit, including basic arithmetic operations. The theoretical foundations of AINs, along with detailed discussions on properties, rigorous mathematical proofs, and theorems on symmetry and asymmetry for both binary and unary operations, are introduced in [1], further enhancing the mathematical framework of AINs. Practical examples illustrate the versatility of AINs in various scientific and technical applications. AINs represent a significant advancement in interval arithmetic, paving the way for further research and applications across diverse fields.

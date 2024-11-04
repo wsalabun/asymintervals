@@ -2,3 +2,4 @@
  numpy
  furo
  matplotlib
+ recommonmark

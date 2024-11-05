@@ -1145,11 +1145,47 @@ class AIN:
         return False
 
     def __gt__(self, other):
+        """
+        Compare this object with another using the greater-than operator (>).
 
-        alpha = self.alpha
-        beta = self.beta
-        gamma = other.alpha
-        omega = other.beta
+        Compute the probability that a random variable X (represented by this object)
+        is greater than a random variable Y (represented by `other`).
+
+        Parameters
+        ----------
+        other : type of self
+            Another object to compare with.
+
+        Returns
+        -------
+        float
+            Probability that X > Y.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN.
+
+        Notes
+        -----
+        This method computes the integral of a specific integrand function over
+        two intervals defined by the `other` object. The integrand function
+        incorporates parameters and densities from both this and `other` objects.
+
+        The integration is performed using numerical quadrature (`quad` function
+        from scipy.integrate). If integration limits are not properly defined
+        (e.g., if `other.lower` >= `other.expected` >= `other.upper`), a ValueError
+        is raised.
+
+        Examples
+        --------
+        >>> a = AIN(2, 12, 4)
+        >>> b = AIN(-2, 10, 2)
+        >>> print(a>b)
+        0.7479166666666668
+        """
+        if not isinstance(other, AIN):
+            raise TypeError("other must be an instance of AIN")
 
         def integrand(y, density_y, alpha, beta, a, c, b):
             term1 = alpha * (c - max(y, a)) if y < c else 0
@@ -1157,8 +1193,8 @@ class AIN:
             return density_y * (term1 + term2)
 
         # Obliczanie całki dla dwóch przedziałów
-        P_X_greater_Y_part1, _ = quad(integrand, other.lower, other.expected, args=(gamma, alpha, beta, self.lower, self.expected, self.upper))
-        P_X_greater_Y_part2, _ = quad(integrand, other.expected, other.upper, args=(omega, alpha, beta, self.lower, self.expected, self.upper))
+        P_X_greater_Y_part1, _ = quad(integrand, other.lower, other.expected, args=(other.alpha, self.alpha, self.beta, self.lower, self.expected, self.upper))
+        P_X_greater_Y_part2, _ = quad(integrand, other.expected, other.upper, args=(other.beta, self.alpha, self.beta, self.lower, self.expected, self.upper))
 
         # Całkowite prawdopodobieństwo
         P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2

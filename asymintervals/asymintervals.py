@@ -1233,6 +1233,8 @@ class AIN:
             raise TypeError("other variable must be an instance of AIN or float or")
         if isinstance(other, (int, float)):
             return 1 - self.cdf(other)
+        if other.isdegenerate():
+            return 1 -              self.cdf(other.expected)
         def integrand(y, density_y, alpha, beta, a, c, b):
             term1 = alpha * (c - max(y, a)) if y < c else 0
             term2 = beta * (b - max(y, c)) if y < b else 0
@@ -1326,6 +1328,8 @@ class AIN:
             raise TypeError('other must be an integer, float or AIN')
         if isinstance(other, (int, float)):
             return self.cdf(other)
+        if other.isdegenerate():
+            return self.cdf(other.expected)
         return other > self
 
     def __le__(self, other):
@@ -1369,8 +1373,18 @@ class AIN:
             raise TypeError("other must be an instance of AIN, float, or int")
         return max(self < other, self == other)
 
+    def isdegenerate(self):
+        if self.lower == self.expected == self.upper:
+            return True
+        return False
 
-a = AIN(2,12,4)
-b = AIN(-2, 10, 2)
 
-print(a>b)
+if __name__=='__main__':
+    a = AIN(2,12,4)
+    b = AIN(-2, 10, 2)
+
+    c = AIN(0,10,5)
+    d = AIN(5,5,5)
+
+    print(c>d)
+    print(c<d)

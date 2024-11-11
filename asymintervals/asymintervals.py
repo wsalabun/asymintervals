@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import quad
 
 
 class AIN:
@@ -11,8 +10,8 @@ class AIN:
         This constructor creates an instance of AIN using `lower` and `upper` bounds to define the interval.
         Optionally, an `expected` value within this range can be provided. If `expected` is not specified,
         it defaults to the midpoint of `lower` and `upper`. The `expected` value must lie within the interval
-        `[lower, upper]`. Additionally, asymmetry coefficients (`alpha`, `beta`) and the degree of asymmetry
-        (`asymmetry`) are calculated based on the specified bounds and expected value.
+        `[lower, upper]`. Additionally, the two parameters defining the AIN distribution (`alpha`, `beta`) and
+        the degree of asymmetry (`asymmetry`) are calculated based on the specified bounds and expected value.
 
         Parameters
         ----------
@@ -39,9 +38,9 @@ class AIN:
         expected : float
             The expected value within the interval.
         alpha : float
-            The asymmetry coefficient for the interval, calculated if `lower` is not equal to `upper`.
+            One of the two parameters defining the AIN distribution, calculated if `lower` is not equal to `upper`.
         beta : float
-            The asymmetry coefficient for the interval, calculated if `lower` is not equal to `upper`.
+            One of the two parameters defining the AIN distribution, calculated if `lower` is not equal to `upper`.
         asymmetry : float
             The asymmetry degree of the interval, representing the relative position of `expected`
             between `lower` and `upper`.
@@ -84,6 +83,7 @@ class AIN:
             self.alpha = 1.0
             self.beta = 1.0
             self.asymmetry = 0.0
+            self.D2 = 0.0
         else:
             self.alpha = (self.upper - self.expected) / ((self.upper - self.lower) * (self.expected - self.lower))
             self.beta = (self.expected - self.lower) / ((self.upper - self.lower) * (self.upper - self.expected))
@@ -1096,3 +1096,6 @@ class AIN:
         ax.set_ylabel('pdf', labelpad=-15)
         ax.set_xlabel(ain_label)
         return ax
+
+
+

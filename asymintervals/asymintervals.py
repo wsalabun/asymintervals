@@ -1144,81 +1144,247 @@ class AIN:
             return self.lower == self.expected == self.upper == other
         return False
 
-    def __gt__(self, other):
+    def __ne__(self, other):
         """
-        Compare this object with another using the greater-than operator (>).
-
-        Compute the probability that a random variable X (represented by this object)
-        is greater than a random variable Y (represented by `other`).
+        Determines whether this AIN instance is not equal to another object, which can be an instance of AIN, a float, or an int.
 
         Parameters
         ----------
-        other : type of self
-            Another object to compare with.
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
 
         Returns
         -------
-        float
-            Probability that X > Y.
+        bool
+            True if the objects are not equal, False otherwise.
 
         Raises
         ------
         TypeError
-            If `other` is not an instance of AIN.
+            If `other` is not an instance of AIN, float, or int.
 
         Notes
         -----
-        This method computes the integral of a specific integrand function over
-        two intervals defined by the `other` object. The integrand function
-        incorporates parameters and densities from both this and `other` objects.
-
-        The integration is performed using numerical quadrature (`quad` function
-        from scipy.integrate). If integration limits are not properly defined
-        (e.g., if `other.lower` >= `other.expected` >= `other.upper`), a ValueError
-        is raised.
+        - For two AIN instances to be considered equal, their `lower`, `upper`, and `expected` attributes must be identical.
+        - When comparing an AIN instance to a float or int, equality requires that all attributes (`lower`, `upper`, and `expected`) of the AIN instance are equal to the specified float or int.
 
         Examples
         --------
-        >>> a = AIN(2, 12, 4)
-        >>> b = AIN(-2, 10, 2)
-        >>> print(a>b)
-        0.7479166666666668
-        """
-        if not isinstance(other, AIN):
-            raise TypeError("other must be an instance of AIN")
+        >>> ain1 = AIN(1, 10, 3)
+        >>> ain2 = AIN(1, 10, 3)
+        >>> ain1 != ain2
+        False
 
+        >>> ain = AIN(2, 2, 2)
+        >>> ain != 2
+        False
+
+        >>> ain = AIN(1, 10, 3)
+        >>> ain != 3.0
+        True
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other variable must be an instance of AIN or float or int")
+        if isinstance(other, AIN):
+            return not (self.lower == other.lower and self.upper == other.upper and self.expected == other.expected)
+        if isinstance(other, (int, float)):
+            return not (self.lower == self.expected == self.upper == other)
+        return True
+
+    def __gt__(self, other):
+        """
+        Returns the probability that this AIN instance is greater than another object, which can be an instance of AIN, float, or int.
+
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            Probability between 0 and 1 representing the likelihood that this AIN instance is greater than `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - For a float or int, the probability is calculated as `1 - self.cdf(other)`, representing the probability that this AIN instance is greater than the scalar value `other`.
+        - For another AIN instance, the probability is computed by integrating over two intervals, taking into account the densities of each interval segment. This includes:
+            - `P_X_greater_Y_part1`: the probability that `self` is greater than `other` in the interval `[other.lower, other.expected]`
+            - `P_X_greater_Y_part2`: the probability that `self` is greater than `other` in the interval `[other.expected, other.upper]`
+        - The sum of these two parts yields the total probability `P_X_greater_Y` that this AIN instance is greater than the specified `other` AIN instance.
+
+        Examples
+        --------
+        >>> a = AIN(1, 10, 3)
+        >>> b = AIN(5, 15, 7)
+        >>> a > b
+        0.10515873015873016
+
+        >>> ain = AIN(2, 8, 4)
+        >>> ain > 5
+        0.25
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other variable must be an instance of AIN or float or")
+        if isinstance(other, (int, float)):
+            return 1 - self.cdf(other)
+        if other.isdegenerate():
+            return 1 -              self.cdf(other.expected)
         def integrand(y, density_y, alpha, beta, a, c, b):
             term1 = alpha * (c - max(y, a)) if y < c else 0
             term2 = beta * (b - max(y, c)) if y < b else 0
             return density_y * (term1 + term2)
 
-        # Obliczanie całki dla dwóch przedziałów
+        # Calculating the integral for two intervals
         P_X_greater_Y_part1, _ = quad(integrand, other.lower, other.expected, args=(other.alpha, self.alpha, self.beta, self.lower, self.expected, self.upper))
         P_X_greater_Y_part2, _ = quad(integrand, other.expected, other.upper, args=(other.beta, self.alpha, self.beta, self.lower, self.expected, self.upper))
 
-        # Całkowite prawdopodobieństwo
+        # Total probability
         P_X_greater_Y = P_X_greater_Y_part1 + P_X_greater_Y_part2
         return P_X_greater_Y
 
+    def __ge__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is greater than or equal to another object, which can be an AIN instance, a float, or an int.
+
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is greater than or equal to `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the probability is computed as `1 - self.cdf(other) + self == other`, where:
+            - `1 - self.cdf(other)` represents the probability that this AIN instance is greater than `other`.
+            - `self == other` adds the probability of equality.
+        - If `other` is an AIN instance, the probability is calculated by combining the results of `self > other` and `self == other`, yielding the total probability that this AIN instance is greater than or equal to the `other` AIN instance.
+
+        Examples
+        --------
+        >>> a = AIN(2, 10, 5)
+        >>> b = AIN(4, 12, 6)
+        >>> a >= b
+        0.33125000000000004
+
+        >>> a = AIN(3, 7, 5)
+        >>> a >= 6
+        0.25
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other must be an instance of AIN, float, or int")
+        return max(self > other, self == other)
+
     def __lt__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is less than another object, which can be an AIN instance, a float, or an int.
+
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is less than `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the method uses `self.cdf(other)`, which returns the cumulative distribution function (CDF) value representing the probability that this AIN instance is less than `other`.
+        - If `other` is an AIN instance, the method calculates the probability by checking if `other > self`, which should be defined to return the probability that `other` is greater than `self`.
+
+        Examples
+        --------
+        >>> a = AIN(1, 8, 4)
+        >>> b = AIN(5, 12, 6)
+        >>> a < b
+        0.7653061224489796
+
+        >>> a = AIN(3, 7, 5)
+        >>> a < 6
+        0.75
+        """
+        if not isinstance(other, (int, float, AIN)):
+            raise TypeError('other must be an integer, float or AIN')
+        if isinstance(other, (int, float)):
+            return self.cdf(other)
+        if other.isdegenerate():
+            return self.cdf(other.expected)
         return other > self
 
+    def __le__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is less than or equal to another object, which can be an AIN instance, a float, or an int.
 
-a = AIN(2,12,4)
-b = AIN(-2, 10, 2)
-c = AIN(15,20,16.1)
-e = AIN(-2, 10, 2)
-f = AIN(-2, 10, 9)
-print(a>b)
-print(a<c)
-print(a == AIN(0,10,4.1))
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
 
-# value_y_scale_max = AIN.get_y_scale_max([a, b])
-# plt.figure(figsize=(8, 3))
-# plt.subplot(1, 2, 1)
-# a.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.subplot(1, 2, 2)
-# b.add_to_plot(y_scale_max=value_y_scale_max)
-# plt.tight_layout()
-# plt.show()
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is less than or equal to `other`.
 
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the probability is calculated using `self.cdf(other) + self == other`, where:
+            - `self.cdf(other)` represents the probability that this AIN instance is less than `other`.
+            - `self == other` adds the probability of equality.
+        - If `other` is an AIN instance, the probability is computed by combining the results of `self < other` and `self == other`, representing the total likelihood that this AIN instance is less than or equal to the `other` AIN instance.
+
+        Examples
+        --------
+        >>> a = AIN(1, 8, 4)
+        >>> b = AIN(5, 12, 6)
+        >>> a <= b
+        0.7653061224489796
+
+        >>> a = AIN(3, 7, 5)
+        >>> a <= 6
+        0.75
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other must be an instance of AIN, float, or int")
+        return max(self < other, self == other)
+
+    def isdegenerate(self):
+        if self.lower == self.expected == self.upper:
+            return True
+        return False
+
+
+if __name__=='__main__':
+    a = AIN(2,12,4)
+    b = AIN(-2, 10, 2)
+
+    c = AIN(0,10,5)
+    d = AIN(5,5,5)
+
+    print(c>d)
+    print(c<d)

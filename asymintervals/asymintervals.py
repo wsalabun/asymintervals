@@ -472,27 +472,27 @@ class AIN:
 
     def __truediv__(self, other):
         """
-        Perform division of the current AIN instance by another AIN instance or a float or int.
+        Perform division of the current `AIN` instance by another `AIN` instance or a `float` or `int`.
 
-        This method supports division by either another Asymmetric Interval Number (AIN) or a
-        float or int, returning a new AIN instance as the result. When dividing by an AIN,
-        interval boundaries are calculated by dividing the respective boundaries, while the
-        expected value is adjusted based on logarithmic calculations if the bounds differ.
+        This method supports division by either another `AIN` or a `float` or `int`, returning a new 
+        `AIN` instance as the result. When dividing by an `AIN`, interval boundaries are calculated 
+        by dividing the respective boundaries, while the expected value is adjusted based on logarithmic 
+        calculations if the bounds differ.
 
         Parameters
         ----------
         other : AIN, float, or int
-            The divisor, which can be an AIN instance, a float, or an int.
+            The divisor, which can be an `AIN` instance, a `float`, or an `int`.
 
         Returns
         -------
         AIN
-            A new AIN instance representing the result of the division.
+            A new `AIN` instance representing the result of the division.
 
         Raises
         ------
         TypeError
-            If `other` is not an instance of AIN, float, or int.
+            If `other` is not an instance of `AIN`, `float`, or `int`.
 
         Examples
         --------
@@ -507,6 +507,12 @@ class AIN:
         >>> b = 2
         >>> print(a / b)
         [2.0000, 4.0000]_{3.0000}
+        
+        Performing division with a np.array of AIN instances:
+        >>> a = np.array([AIN(0, 10), AIN(2, 8, 7)])
+        >>> b = AIN(1, 4, 2)
+        >>> print(a / b)
+        [AIN(0.0, 10.0, 2.8881132523331052) AIN(0.5, 8.0, 4.043358553266348)]
         """
         if not isinstance(other, (AIN, int, float)):
             raise TypeError(f"other must be an instance of AIN or float or int")
@@ -524,26 +530,26 @@ class AIN:
 
     def __rtruediv__(self, other):
         """
-        Perform reverse true division of a float or int by an Asymmetric Interval Number (AIN) instance.
+        Perform reverse true division of a float or int by an `AIN` instance.
 
         This method enables division where a float or int `other` is divided by an AIN instance (`self`),
-        calculating the reciprocal of `self` and then scaling it by `other`. It returns a new AIN
+        calculating the reciprocal of `self` and then scaling it by `other`. It returns a new `AIN`
         instance representing the outcome.
 
         Parameters
         ----------
         other : float or int
-            The float or int to divide by the AIN instance.
+            The `float` or `int` to divide by the `AIN` instance.
 
         Returns
         -------
         AIN
-            A new AIN instance representing `other` divided by `self`.
+            A new `AIN` instance representing `other` divided by `self`.
 
         Raises
         ------
         TypeError
-            If `other` is not a float or int.
+            If `other` is not a `float` or `int`.
 
         Examples
         --------
@@ -551,6 +557,11 @@ class AIN:
         >>> result = 10 / a
         >>> print(result)
         [2.5000, 5.0000]_{3.4657}
+
+        >>> a = np.array([AIN(2,10), AIN(2,8, 7)])
+        >>> result = 2 / a
+        >>> print(result)
+        [AIN(0.2, 1.0, 0.4023594781085251) AIN(0.25, 1.0, 0.3060698522738955)]
         """
         if not isinstance(other, (float, int)):
             raise TypeError(f"other variable is not a float or int")
@@ -558,27 +569,27 @@ class AIN:
 
     def __pow__(self, n):
         """
-        Raise the Asymmetric Interval Number (AIN) instance to the power `n`.
+        Raise an `AIN` instance to the power `n`.
 
         This method computes the result of raising the AIN instance to the specified exponent `n`.
 
         Parameters
         ----------
         n : int or float
-            The exponent to which the AIN is raised. Valid values include positive or negative real numbers.
+            The exponent to which the `AIN` is raised. Valid values include positive or negative real numbers.
 
         Raises
         ------
         TypeError
-            If `n` is not a float or int.
+            If `n` is not a `float` or `int`.
         ValueError
             If the operation would result in a complex number (e.g., taking the square root of a negative value),
             or if `n = -1` and the interval includes 0, as division by zero is undefined.
-
+    
         Returns
         -------
         AIN
-            A new AIN instance representing the interval raised to the power of `n`.
+            A new `AIN` instance representing the interval raised to the power of `n`.
 
         Notes
         -----
@@ -607,6 +618,9 @@ class AIN:
         ...
         ValueError: The operation cannot be execute because it will be complex number in result for n = 0.5
 
+        >>> a = np.array([AIN(0, 9), AIN(2, 8, 5)])
+        >>> print(a ** 2)
+        [AIN(0, 81, 27.0) AIN(4, 64, 28.0)]
         """
         if not isinstance(n, (float, int)):
             raise TypeError('n must be float or int')
@@ -636,9 +650,9 @@ class AIN:
 
     def pdf(self, x):
         """
-        Calculate the probability density function (PDF) value for the Asymmetric Interval Number (AIN) at a given point `x`.
+        Calculate the probability density function (PDF) value for the `AIN` at a given point `x`.
 
-        This method evaluates the probability density at `x` within the AIN-defined interval. The PDF describes
+        This method calculates the probability density at `x` within the AIN-defined interval. The PDF describes
         how the density is distributed across the AIN interval, with distinct values in different segments:
         - Outside the interval `[self.lower, self.upper]`, the density is 0.
         - Between `self.lower` and `self.expected`, the density is equal to `self.alpha`.
@@ -660,17 +674,20 @@ class AIN:
         Raises
         ------
         TypeError
-            If `x` is not an integer or float.
+            If `x` is not an `int` or `float`.
 
         Examples
         --------
         >>> a = AIN(0, 10, 5)
         >>> a.pdf(-1)
         0.0
+        
         >>> a.pdf(3)
         0.1
+        
         >>> a.pdf(7)
         0.1
+        
         >>> a.pdf(11)
         0.0
         """
@@ -690,7 +707,7 @@ class AIN:
         """
         Calculate the cumulative distribution function (CDF) value for a specified input `x`.
 
-        This method evaluates the cumulative distribution function (CDF) of the AIN instance at
+        This method evaluates the cumulative distribution function (CDF) of the `AIN` instance at
         the given value `x`, indicating the probability that a random variable takes a value less
         than or equal to `x`. The CDF value is computed based on the position of `x` relative to
         the instance's defined bounds (`self.lower`, `self.expected`, `self.upper`).
@@ -715,7 +732,7 @@ class AIN:
         Raises
         ------
         TypeError
-            If `x` is not an int or float.
+            If `x` is not an `int` or `float`.
 
         Notes
         -----
@@ -731,10 +748,13 @@ class AIN:
         >>> a = AIN(0, 10, 3)
         >>> a.cdf(1.5)
         0.35
+        
         >>> a.cdf(3)
         0.7
+        
         >>> a.cdf(8.5)
         0.9357142857142857
+        
         >>> a.cdf(20)
         1
         """
@@ -755,7 +775,7 @@ class AIN:
         Compute the quantile value (inverse cumulative distribution function) for a given probability.
 
         This method calculates the quantile, or the inverse cumulative distribution function (CDF),
-        for the AIN instance at a specified probability level `y`. The quantile represents the value
+        for the `AIN` instance at a specified probability level `y`. The quantile represents the value
         below which a given percentage of observations fall, based on the AIN instance’s parameters.
         The function only operates within the probability range [0, 1].
 
@@ -776,7 +796,7 @@ class AIN:
             If `y` is outside the valid range [0, 1].
 
         TypeError
-            If `y` is not a float or int value.
+            If `y` is not a `float` or `int` value.
 
         Notes
         -----
@@ -791,8 +811,10 @@ class AIN:
         >>> a = AIN(0, 10, 3)
         >>> a.quantile(0.25)
         1.0714285714285714
+        
         >>> a.quantile(0.85)
         6.5
+        
         >>> a.quantile(1.1)
         Traceback (most recent call last):
             ...
@@ -827,7 +849,7 @@ class AIN:
         Raises
         ------
         TypeError
-            If `precision` is not an integer, a ValueError is raised with an informative message.
+            If `precision` is not an `int`, a ValueError is raised with an informative message.
 
         Example
         -------
@@ -875,9 +897,9 @@ class AIN:
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
-        Plot the intervals and key values of an Asymmetric Interval Number (AIN) instance.
+        Plot the intervals and key values of an `AIN` instance.
 
-        Visualizes the AIN instance by plotting its lower, expected, and upper values,
+        Visualizes the `AIN` instance by plotting its lower, expected, and upper values,
         along with corresponding alpha and beta levels.
 
         Parameters
@@ -887,7 +909,7 @@ class AIN:
         ain_c : str, optional
             Color for the interval lines. Accepts any valid matplotlib color string. Default is 'k' (black).
         ain_label : str, optional
-            Label for the x-axis, representing the AIN instance. Default is an empty string.
+            Label for the x-axis, representing the `AIN` instance. Default is an empty string.
 
         Returns
         -------
@@ -897,7 +919,7 @@ class AIN:
         Raises
         ------
         ValueError
-            If `ain_lw` is not a positive float or integer.
+            If `ain_lw` is not a positive `float` or `int`.
         TypeError
             If `ain_c` or `ain_label` is not a string.
 
@@ -974,22 +996,22 @@ class AIN:
     @staticmethod
     def get_y_scale_max(ains_list):
         """
-        Calculate the maximum scale value (y-axis) from a list of AIN objects.
+        Calculate the maximum scale value (y-axis) from a list of `AIN` objects.
 
         Parameters
         ----------
         ains_list : list
-            A list of AIN (Asymmetric Interval Number) objects.
+            A list of `AIN` objects.
 
         Returns
         -------
         float
-            The maximum scale value found in the list of AIN objects.
+            The maximum scale value found in the list of `AIN` objects.
 
         Raises
         ------
         TypeError
-            If ains_list is not a list or if any element in the list is not an AIN object.
+            If ains_list is not a list or if any element in the list is not an `AIN` object.
 
         Notes
         -----
@@ -998,7 +1020,7 @@ class AIN:
 
         Example
         -------
-        Assuming `ains_list` is a list of AIN objects:
+        Assuming `ains_list` is a list of `AIN` objects:
 
         >>> ains_list = [AIN(1, 10), AIN(2, 10, 4)]
         >>> max_value = AIN.get_y_scale_max(ains_list)
@@ -1016,10 +1038,10 @@ class AIN:
 
     def add_to_plot(self, ain_lw=2.0, ain_c='k', ain_label='', ax=None, y_scale_max=None):
         """
-        Plot the intervals and key values of an Asymmetric Interval Number (AIN) instance.
+        Plot the intervals and key values of an `AIN` instance.
 
-        Visualizes the AIN instance by plotting its lower, expected, and upper values,
-        along with corresponding alpha and beta levels. The plot includes:
+        Visualizes the `AIN` instance by plotting its `lower`, `expected`, and `upper` values,
+        along with corresponding `alpha` and `beta` levels. The plot includes:
 
         - Vertical dashed lines at the lower, expected, and upper bounds of the interval.
         - Horizontal solid lines representing the alpha and beta values across the intervals.

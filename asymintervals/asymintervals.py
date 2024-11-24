@@ -830,6 +830,25 @@ class AIN:
         else:
             raise ValueError(f'Argument y = {y} is out of range; it should be between 0 and 1.')
         return res
+    def entropy(self):
+        """
+        Calculates the entropy value for a single AIN.
+
+
+        Returns
+        -------
+        float
+            The entropy value for the current instance.
+
+        Example
+        -------
+        >>> a = AIN(0, 20)
+        >>> print(f"{a.entropy():.4f}")
+        2.9957
+        """
+        left = self.alpha * np.log(self.alpha) * (self.expected - self.lower)
+        right = self.beta * np.log(self.beta) * (self.upper - self.expected)
+        return -(left + right) # issue to solve: for degenerated AIN return -0.0 it should be 0.0
 
     def summary(self, precision=6):
         """
@@ -864,6 +883,7 @@ class AIN:
         Exp. val.    =     2.0000
         Variance     =     5.3333
         Std. dev.    =     2.3094
+        Entropy      =     1.4708
         Midpoint     =     5.0000
         ====================================
 
@@ -885,6 +905,7 @@ class AIN:
             ('Exp. val.', f'{self.expected:.{precision}f}'),
             ('Variance', f'{self.D2:.{precision}f}'),
             ('Std. dev.', f'{(self.D2 ** 0.5):.{precision}f}'),
+            ('Entropy', f'{self.entropy():.{precision}f}'),
             ('Midpoint', f'{((self.lower + self.upper) / 2):.{precision}f}')
         ]
 
@@ -1161,4 +1182,6 @@ class AIN:
         return ax
 
 
-
+a = AIN(20, 20)
+a.summary(4)
+print(a.entropy())

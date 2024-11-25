@@ -1182,6 +1182,5 @@ class AIN:
         return ax
 
 
-a = AIN(20, 20)
-a.summary(4)
+a = AIN(0, 10)
 print(a.entropy())

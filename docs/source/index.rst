@@ -28,8 +28,8 @@ If the ``asymintervals`` library has contributed to a scientific publication, we
 
 .. code-block::
 
-   [1] Sałabun, W. (2024). Asymmetric Interval Numbers: a new approach to modeling uncertainty.
-       Fuzzy Sets and Systems, (in press).
+   [1] Sałabun, W. (2025). Asymmetric Interval Numbers: a new approach to modeling uncertainty.
+       Fuzzy Sets and Systems, 499, 109169. https://doi.org/10.1016/j.fss.2024.109169
 
 .. code-block::
 

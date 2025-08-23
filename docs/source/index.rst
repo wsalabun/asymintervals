@@ -33,16 +33,16 @@ If the ``asymintervals`` library has contributed to a scientific publication, we
 
 .. code-block::
 
-   @article{salabun2024,
+   @article{salabun2025,
       title={Asymmetric Interval Numbers: a new approach to modeling uncertainty},
       author={Sałabun, Wojciech},
       journal={Fuzzy sets and systems},
-      volume={in press},
-      number={in press},
-      pages={in press},
-      year={2024},
-      publisher={Elsevier}
-
+      volume={499},
+      pages={109169},
+      year={2025},
+      publisher={Elsevier},
+      doi={10.1016/j.fss.2024.109169}
+   }
 
 Example
 ^^^^^^^

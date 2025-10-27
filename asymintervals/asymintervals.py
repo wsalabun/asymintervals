@@ -860,7 +860,7 @@ class AIN:
         === Summary ========================
         Alpha        =     0.4000
         Beta         =     0.0250
-        Assymetry    =     0.6000
+        Asymmetry    =     0.6000
         Exp. val.    =     2.0000
         Variance     =     5.3333
         Std. dev.    =     2.3094
@@ -881,7 +881,7 @@ class AIN:
         elements = [
             ('Alpha', f'{self.alpha:.{precision}f}'),
             ('Beta', f'{self.beta:.{precision}f}'),
-            ('Assymetry', f'{self.asymmetry:.{precision}f}'),
+            ('Asymmetry', f'{self.asymmetry:.{precision}f}'),
             ('Exp. val.', f'{self.expected:.{precision}f}'),
             ('Variance', f'{self.D2:.{precision}f}'),
             ('Std. dev.', f'{(self.D2 ** 0.5):.{precision}f}'),

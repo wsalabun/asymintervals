@@ -92,7 +92,64 @@ class AIN:
             self.beta = (self.expected - self.lower) / ((self.upper - self.lower) * (self.upper - self.expected))
             self.asymmetry = (self.lower + self.upper - 2 * self.expected) / (self.upper - self.lower)
             self.D2 = self.alpha * (self.expected ** 3 - self.lower ** 3) / 3 + self.beta * (
-                    self.upper ** 3 - self.expected ** 3) / 3 - expected ** 2
+                    self.upper ** 3 - self.expected ** 3) / 3 - self.expected ** 2
+
+    def sin(self):
+        """
+        Compute sine of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing sin(X).
+
+        Examples
+        --------
+        >>> x = AIN(0, np.pi/2, np.pi/4)
+        >>> result = x.sin()
+        >>> print(result)
+        [0.0000, 1.0000]_{0.6366}
+
+        >>> x = AIN.0000]_{0.0000}
+        """
+
+        # Przypadek zdegenerowany
+        if self.lower == self.upper:
+            val = np.sin(self.expected)
+            return AIN(val, val, val)
+
+        # Znajdź min i max sinusa na [a, b]
+        a, b, c = self.lower, self.upper, self.expected
+
+        candidates = [np.sin(a), np.sin(b)]
+
+        # Sprawdź czy przedział zawiera maksima sinusa (π/2 + 2kπ)
+        k_max_start = int(np.ceil((a - np.pi / 2) / (2 * np.pi)))
+        k_max_end = int(np.floor((b - np.pi / 2) / (2 * np.pi)))
+        for k in range(k_max_start, k_max_end + 1):
+            x_max = np.pi / 2 + 2 * k * np.pi
+            if a <= x_max <= b:
+                candidates.append(1.0)
+
+        # Sprawdź czy przedział zawiera minima sinusa (-π/2 + 2kπ)
+        k_min_start = int(np.ceil((a + np.pi / 2) / (2 * np.pi)))
+        k_min_end = int(np.floor((b + np.pi / 2) / (2 * np.pi)))
+        for k in range(k_min_start, k_min_end + 1):
+            x_min = -np.pi / 2 + 2 * k * np.pi
+            if a <= x_min <= b:
+                candidates.append(-1.0)
+
+        new_a = min(candidates)
+        new_b = max(candidates)
+
+        # Wartość oczekiwana z LOTUS
+        # new_c = (self.alpha * (np.cos(a) - np.cos(c)) +
+        #          self.beta * (np.cos(c) - np.cos(b))
+        new_c = (self.alpha * (np.cos(self.lower) - np.cos(self.expected)) +
+                 self.beta * (np.cos(self.expected) - np.cos(self.upper)))
+
+
+        return AIN(new_a, new_b, new_c)
 
     def __repr__(self):
         """
@@ -938,6 +995,116 @@ class AIN:
         res = AIN(new_lower, new_upper, new_expected)
         return res
 
+    def __abs__(self):
+        """
+        Compute the absolute value of an AIN instance.
+
+        The absolute value operation handles three cases based on the position of the interval
+        relative to zero. This implementation follows the LOTUS (Law of the Unconscious Statistician)
+        methodology to compute the expected value of |X|.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing the absolute value of the interval.
+
+        Raises
+        ------
+        None
+
+        Notes
+        -----
+        The method handles three distinct cases:
+
+        **Case 1:** If the entire interval is non-negative (a ≥ 0), the absolute value
+        does not change the interval: |[a, b]_c| = [a, b]_c
+
+        **Case 2:** If the entire interval is non-positive (b ≤ 0), the absolute value
+        negates and reverses the bounds: |[a, b]_c| = [-b, -a]_{-c}
+
+        **Case 3:** If the interval contains zero (a < 0 < b), the absolute value results
+        in an interval starting at zero. The expected value is computed using LOTUS:
+
+        For c > 0 (expected value in positive part):
+            E(|X|) = α(c²/2 - a²/2) + β(b²/2 - c²/2)
+
+        For c ≤ 0 (expected value in negative part):
+            E(|X|) = α(0 - a²/2) + β(b²/2 - 0)
+
+        The upper bound becomes max(-a, b) to capture the maximum absolute value.
+
+        Examples
+        --------
+        # Case 1: Non-negative interval
+        # >>> a = AIN(1, 4, 2)
+        # >>> print(abs(a))
+        # [1.0000, 4.0000]_{2.0000}
+        #
+        # Case 2: Non-positive interval
+        # >>> b = AIN(-4, -1, -2)
+        # >>> print(abs(b))
+        # [1.0000, 4.0000]_{2.0000}
+        #
+        # Case 3: Interval containing zero (c > 0)
+        # >>> c = AIN(-2, 3, 1)
+        # >>> result = abs(c)
+        # >>> print(result)
+        # [0.0000, 3.0000]_{1.5000}
+        #
+        # Case 3: Interval containing zero (c ≤ 0)
+        # >>> d = AIN(-3, 2, -1)
+        # >>> result = abs(d)
+        # >>> print(result)
+        # [0.0000, 3.0000]_{1.2600}
+        #
+        # Symmetric interval around zero
+        # >>> e = AIN(-2, 2, 0)
+        # >>> result = abs(e)
+        # >>> print(result)
+        # [0.0000, 2.0000]_{1.0000}
+        #
+        # Working with numpy arrays
+        # >>> import numpy as np
+        # >>> arr = np.array([AIN(-2, 3, 1), AIN(1, 4, 2), AIN(-4, -1, -2)])
+        # >>> abs_arr = np.abs(arr)
+        # >>> print(abs_arr)
+        # [AIN(0, 3, 1.5) AIN(1, 4, 2.0) AIN(1, 4, 2.0)]
+        """
+        # Case 1: Interval is non-negative (a ≥ 0)
+        if self.lower >= 0:
+            return AIN(self.lower, self.upper, self.expected)
+
+        # Case 2: Interval is non-positive (b ≤ 0)
+        elif self.upper <= 0:
+            return AIN(-self.upper, -self.lower, -self.expected)
+
+        # Case 3: Interval contains zero (a < 0 < b)
+        else:
+            new_a = 0
+            new_b = max(-self.lower, self.upper)
+
+            # Degenerate case
+            if self.lower == self.upper:
+                new_c = abs(self.expected)
+            else:
+                # Expected value is in the positive part (c > 0)
+                # E(|X|) = α∫_a^0(-x)dx + α∫_0^c(x)dx + β∫_c^b(x)dx
+                #        = α·a²/2 + α·c²/2 + β·b²/2 - β·c²/2
+                if self.expected > 0:
+                    new_c = (self.alpha * self.lower ** 2 / 2 +
+                             self.alpha * self.expected ** 2 / 2 +
+                             self.beta * self.upper ** 2 / 2 -
+                             self.beta * self.expected ** 2 / 2)
+                # Expected value is in the negative part or at zero (c ≤ 0)
+                # E(|X|) = α∫_a^c(-x)dx + β∫_c^0(-x)dx + β∫_0^b(x)dx
+                #        = α·a²/2 - α·c²/2 + β·c²/2 + β·b²/2
+                else:
+                    new_c = (self.alpha * self.lower ** 2 / 2 -
+                             self.alpha * self.expected ** 2 / 2 +
+                             self.beta * self.expected ** 2 / 2 +
+                             self.beta * self.upper ** 2 / 2)
+
+            return AIN(new_a, new_b, new_c)
 
     def pdf(self, x):
         """

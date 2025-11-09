@@ -567,38 +567,99 @@ class AIN:
             raise TypeError(f"other variable is not a float or int")
         return other * self**(-1)
 
+    # def __pow__(self, n):
+    #     """
+    #     Raise an `AIN` instance to the power `n`.
+    #
+    #     This method computes the result of raising the AIN instance to the specified exponent `n`.
+    #
+    #     Parameters
+    #     ----------
+    #     n : int or float
+    #         The exponent to which the `AIN` is raised. Valid values include positive or negative real numbers.
+    #
+    #     Raises
+    #     ------
+    #     TypeError
+    #         If `n` is not a `float` or `int`.
+    #     ValueError
+    #         If the operation would result in a complex number (e.g., taking the square root of a negative value),
+    #         or if `n = -1` and the interval includes 0, as division by zero is undefined.
+    #
+    #     Returns
+    #     -------
+    #     AIN
+    #         A new `AIN` instance representing the interval raised to the power of `n`.
+    #
+    #     Notes
+    #     -----
+    #     - For `n = -1`, the method checks if 0 is within the interval. If it is, the operation is undefined
+    #       (division by zero) and raises a `ValueError`.
+    #     - When `n` results in a complex output (e.g., fractional exponents for negative values), a `ValueError`
+    #       is raised to indicate that complex results are unsupported.
+    #     - For other exponents, the power is applied individually to `self.lower`, `self.upper`, and `self.expected`,
+    #       with appropriate handling for intervals containing 0 to avoid undefined behaviors.
+    #
+    #     Examples
+    #     --------
+    #     >>> a = AIN(4, 8, 5)
+    #     >>> print(a**2)
+    #     [16.0000, 64.0000]_{26.0000}
+    #
+    #     >>> b = AIN(-2, 10, 3)
+    #     >>> print(b**(-1))
+    #     Traceback (most recent call last):
+    #     ...
+    #     ValueError: The operation cannot be execute because 0 is included in the interval.
+    #
+    #     >>> c = AIN(-2, 10, 3)
+    #     >>> print(c**(0.5))
+    #     Traceback (most recent call last):
+    #     ...
+    #     ValueError: The operation cannot be execute because it will be complex number in result for n = 0.5
+    #
+    #     >>> a = np.array([AIN(0, 9), AIN(2, 8, 5)])
+    #     >>> print(a ** 2)
+    #     [AIN(0, 81, 27.0) AIN(4, 64, 28.0)]
+    #     """
+    #     if not isinstance(n, (float, int)):
+    #         raise TypeError('n must be float or int')
+    #     if isinstance(self.lower**n, complex):
+    #         raise ValueError(f'The operation cannot be execute because it will be complex number in result for n = {n}')
+    #     if self.lower < 0 and self.upper > 0:
+    #         new_a = min(0, self.lower ** n)
+    #     else:
+    #         new_a = min(self.lower ** n, self.upper ** n)
+    #     new_b = max(self.lower ** n, self.upper ** n)
+    #     if n == -1:
+    #         if self.lower <= 0 <= self.upper:
+    #             raise ValueError(f'The operation cannot be execute because 0 is included in the interval.')
+    #         else:
+    #             if self.lower == self.upper:
+    #                 new_c = 1 / self.lower
+    #             else:
+    #                 new_c = self.alpha * np.log(self.expected / self.lower) + self.beta * np.log(self.upper / self.expected)
+    #     else:
+    #         new_c = self.alpha * (self.expected ** (n + 1) - self.lower ** (n + 1)) / (n + 1) + self.beta * (
+    #             self.upper ** (n + 1) - self.expected ** (n + 1)) / (n + 1)
+    #     if self.lower == self.upper:
+    #         new_c = new_b
+    #     res = AIN(new_a, new_b, new_c)
+    #     return res
+
     def __pow__(self, n):
         """
         Raise an `AIN` instance to the power `n`.
 
-        This method computes the result of raising the AIN instance to the specified exponent `n`.
-
         Parameters
         ----------
-        n : int or float
-            The exponent to which the `AIN` is raised. Valid values include positive or negative real numbers.
+        n : int, float, or AIN
+            The exponent to which the `AIN` is raised.
 
-        Raises
-        ------
-        TypeError
-            If `n` is not a `float` or `int`.
-        ValueError
-            If the operation would result in a complex number (e.g., taking the square root of a negative value),
-            or if `n = -1` and the interval includes 0, as division by zero is undefined.
-    
         Returns
         -------
         AIN
             A new `AIN` instance representing the interval raised to the power of `n`.
-
-        Notes
-        -----
-        - For `n = -1`, the method checks if 0 is within the interval. If it is, the operation is undefined
-          (division by zero) and raises a `ValueError`.
-        - When `n` results in a complex output (e.g., fractional exponents for negative values), a `ValueError`
-          is raised to indicate that complex results are unsupported.
-        - For other exponents, the power is applied individually to `self.lower`, `self.upper`, and `self.expected`,
-          with appropriate handling for intervals containing 0 to avoid undefined behaviors.
 
         Examples
         --------
@@ -606,31 +667,37 @@ class AIN:
         >>> print(a**2)
         [16.0000, 64.0000]_{26.0000}
 
-        >>> b = AIN(-2, 10, 3)
-        >>> print(b**(-1))
-        Traceback (most recent call last):
-        ...
-        ValueError: The operation cannot be execute because 0 is included in the interval.
-
-        >>> c = AIN(-2, 10, 3)
-        >>> print(c**(0.5))
-        Traceback (most recent call last):
-        ...
-        ValueError: The operation cannot be execute because it will be complex number in result for n = 0.5
-
-        >>> a = np.array([AIN(0, 9), AIN(2, 8, 5)])
-        >>> print(a ** 2)
-        [AIN(0, 81, 27.0) AIN(4, 64, 28.0)]
+        # >>> a = AIN(2, 4, 3)
+        # >>> b = AIN(1, 2, 1.5)
+        # >>> print(a**b)  # A^B = exp(B*log(A))
+        # [2.0000, 16.0000]_{...}
         """
+        # Obsługa np.array
+        if isinstance(self, np.ndarray):
+            return np.array([item ** n for item in self])
+
+        # Przypadek: AIN ** AIN
+        if isinstance(n, AIN):
+            # A ** B = exp(B * log(A))
+            log_self = self.log()
+            mul_result = n * log_self
+            result = mul_result.exp()
+            return result
+
+        # Przypadek: AIN ** (int/float)
         if not isinstance(n, (float, int)):
-            raise TypeError('n must be float or int')
-        if isinstance(self.lower**n, complex):
+            raise TypeError('n must be float, int, or AIN')
+
+        if isinstance(self.lower ** n, complex):
             raise ValueError(f'The operation cannot be execute because it will be complex number in result for n = {n}')
+
         if self.lower < 0 and self.upper > 0:
             new_a = min(0, self.lower ** n)
         else:
             new_a = min(self.lower ** n, self.upper ** n)
+
         new_b = max(self.lower ** n, self.upper ** n)
+
         if n == -1:
             if self.lower <= 0 <= self.upper:
                 raise ValueError(f'The operation cannot be execute because 0 is included in the interval.')
@@ -638,13 +705,237 @@ class AIN:
                 if self.lower == self.upper:
                     new_c = 1 / self.lower
                 else:
-                    new_c = self.alpha * np.log(self.expected / self.lower) + self.beta * np.log(self.upper / self.expected)
+                    new_c = self.alpha * np.log(self.expected / self.lower) + self.beta * np.log(
+                        self.upper / self.expected)
         else:
             new_c = self.alpha * (self.expected ** (n + 1) - self.lower ** (n + 1)) / (n + 1) + self.beta * (
-                self.upper ** (n + 1) - self.expected ** (n + 1)) / (n + 1)
+                    self.upper ** (n + 1) - self.expected ** (n + 1)) / (n + 1)
+
         if self.lower == self.upper:
             new_c = new_b
+
         res = AIN(new_a, new_b, new_c)
+        return res
+
+    # def __rpow__(self, a):
+    #     """
+    #     Compute a^x where `a` is the base and `self` (x) is the `AIN` instance.
+    #
+    #     Allows expressions like `2 ** AIN(1, 2, 1.5)`.
+    #
+    #     Parameters
+    #     ----------
+    #     a : float or int
+    #         The base of the power function. Must be positive and not equal to 1.
+    #
+    #     Returns
+    #     -------
+    #     AIN
+    #         A new `AIN` instance representing the result of a^x operation.
+    #
+    #     Raises
+    #     ------
+    #     TypeError
+    #         If `a` is not a number (int or float).
+    #     ValueError
+    #         If `a <= 0` or `a == 1`.
+    #
+    #     Examples
+    #     --------
+    #     # >>> a = AIN(1, 2, 1.5)
+    #     # >>> print(2 ** a)
+    #     # [2.0000, 4.0000]_{...}
+    #     """
+    #
+    #     # Obsługa np.array
+    #     if isinstance(self, np.ndarray):
+    #         return np.array([a ** item for item in self])
+    #
+    #     if not isinstance(a, (int, float)):
+    #         raise TypeError(f"a is not a number (int or float)")
+    #
+    #     if a <= 0 or a == 1:
+    #         raise ValueError(f"a must be positive and not equal to 1")
+    #
+    #     new_lower = float(a ** self.lower)
+    #     new_upper = float(a ** self.upper)
+    #
+    #     if self.lower == self.upper:
+    #         new_expected = float(a ** self.expected)
+    #     else:
+    #         new_expected = float((self.alpha * ((a ** self.lower) - (a ** self.upper)) +
+    #                         self.beta * ((a ** self.upper) - (a ** self.lower))) / np.log(a))
+    #
+    #     res = AIN(new_lower, new_upper, new_expected)
+    #     return res
+
+    # def __rpow__(self, a):
+    #     """
+    #
+
+    def __rpow__(self, a):
+        """
+        Compute a^x where `a` is the base and `self` (x) is the `AIN` instance.
+
+        Allows expressions like `2 ** AIN(1, 2, 1.5)`.
+
+        Parameters
+        ----------
+        a : float or int
+            The base of the power function. Must be positive and not equal to 1.
+
+        Returns
+        -------
+        AIN
+            A new `AIN` instance representing the result of a^x operation.
+
+        Raises
+        ------
+        TypeError
+            If `a` is not a number (int or float).
+        ValueError
+            If `a <= 0` or `a == 1`.
+
+        Examples
+        --------
+        # >>> a = AIN(1, 2, 1.5)
+        # >>> print(2 ** a)
+        # [2.0000, 4.0000]_2.8854
+        """
+
+
+        # Obsługa np.array
+        if isinstance(self, np.ndarray):
+            return np.array([a ** item for item in self])
+
+        if not isinstance(a, (int, float)):
+            raise TypeError(f"a is not a number (int or float)")
+
+        if a <= 0 or a == 1:
+            raise ValueError(f"a must be positive and not equal to 1")
+
+        new_lower = float(a ** self.lower)
+        new_upper = float(a ** self.upper)
+
+        if self.lower == self.upper:
+            new_expected = float(a ** self.expected)
+        else:
+            # Odwracamy odejmowanie, aby była dodatnia różnica
+            new_expected = float((self.alpha * ((a ** self.expected) - (a ** self.lower)) +
+                                  self.beta * ((a ** self.upper) - (a ** self.expected))) / np.log(a))
+
+        res = AIN(new_lower, new_upper, new_expected)
+        return res
+
+    def log(self):
+        """
+        Computes the natural logarithm (ln(x)) of the current `AIN` instance.
+        Returns a new `AIN` instance representing the result.
+
+        - When computing ln(x) of an `AIN` instance, the resulting `lower` and `upper`
+        values are calculated by applying the natural logarithm function to the
+        corresponding bounds of the current `AIN` instance.
+        - The `expected` value is calculated using the formula:
+          c_ln = α(c·ln(c) - c - a·ln(a) + a) + β(b·ln(b) - b - c·ln(c) + c)
+          where a = lower, b = upper, c = expected, α = alpha, β = beta
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        AIN
+            Returns a new `AIN` instance representing the result of the natural logarithm operation,
+            with the `lower`, `upper`, and `expected` values updated accordingly based
+            on the operation.
+
+        Raises
+        ------
+        TypeError
+            If `self` is not an instance of `AIN`.
+        ValueError
+            If `lower <= 0`, as the natural logarithm is undefined for non-positive values.
+
+        Examples
+        --------
+        Natural logarithm of an `AIN` instance:
+        # >>> a = AIN(1, np.e, 2)
+        # >>> print(a.log())
+        # [0.0000, 1.0000]_{...}
+        #
+        # Performing natural logarithm on a `np.array` of `AIN` instances:
+        # >>> a = np.array([AIN(1, np.e, 2), AIN(np.e, 10, 5)])
+        # >>> print(a.log())
+        # [AIN(0.0, 1.0, ...) AIN(1.0, 2.3026, ...)]
+
+        """
+
+        if not isinstance(self, AIN):
+            raise TypeError(f"self is not an instance of AIN")
+
+        if self.lower <= 0:
+            raise ValueError(
+                f"lower must be positive (> 0), got lower={self.lower}. Natural logarithm is undefined for non-positive values.")
+
+        new_lower = np.log(self.lower)
+        new_upper = np.log(self.upper)
+
+        new_expected = (self.alpha * (self.expected * np.log(self.expected) - self.expected -
+                                      self.lower * np.log(self.lower) + self.lower) +
+                        self.beta * (self.upper * np.log(self.upper) - self.upper -
+                                     self.expected * np.log(self.expected) + self.expected))
+
+        res = AIN(new_lower, new_upper, new_expected)
+        return res
+
+
+    def exp(self):
+        """
+        Computes the exponential (e^x) of the current `AIN` instance.
+        Returns a new `AIN` instance representing the result.
+
+        - When computing exp() of an `AIN` instance, the resulting `lower` and `upper`
+        values are calculated by applying the exponential function to the corresponding values.
+        - The `expected` value is calculated as the mean value of exp(x) over the interval
+        [lower, upper], given by (e^upper - e^lower) / (upper - lower).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        AIN
+            Returns a new `AIN` instance representing the result of the exponential operation,
+            with the `lower`, `upper`, and `expected` values updated accordingly.
+
+        Raises
+        ------
+        TypeError
+            If `self` is not an instance of `AIN`.
+        ValueError
+            If `lower >= upper`.
+
+        Examples
+        --------
+        Exponential of an `AIN` instance:
+        >>> a = AIN(0, 1, 0.5)
+        >>> print(a.exp())
+        [1.0000, 2.7183]_{1.7183}
+        """
+
+        if not isinstance(self, AIN):
+            raise TypeError(f"self is not an instance of AIN")
+
+        if self.lower >= self.upper:
+            raise ValueError(f"lower ({self.lower}) must be less than upper ({self.upper})")
+
+        new_lower = np.exp(self.lower)
+        new_upper = np.exp(self.upper)
+        new_expected = self.alpha*(np.exp(self.expected)-np.exp(self.lower))+self.beta*(np.exp(self.upper)-np.exp(self.expected))
+
+        res = AIN(new_lower, new_upper, new_expected)
         return res
 
 

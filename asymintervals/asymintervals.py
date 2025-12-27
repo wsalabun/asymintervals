@@ -1274,6 +1274,157 @@ class AIN:
 
         return AIN(new_a, new_b, new_c)
 
+    @classmethod
+    def from_samples(cls, data, method='minmax', clip_outliers=False):
+        """
+        Create AIN from empirical data using various methods.
+
+        This method constructs an AIN instance from a collection of samples,
+        offering multiple strategies for determining interval bounds and handling outliers.
+
+        Parameters
+        ----------
+        data : array-like
+            Sample data (list, numpy array, etc.)
+        method : str, optional
+            Method for determining bounds (default: 'minmax'):
+            - 'minmax': Use minimum and maximum values
+            - 'percentile': Use 1st and 99th percentiles
+            - 'iqr': Use interquartile range (Q1-Q3)
+            - 'std': Use mean ± 3*sigma
+            - 'mad': Use median ± 3*MAD (Median Absolute Deviation)
+        clip_outliers : bool, optional
+            Whether to remove outliers before calculations using IQR method (default: False)
+
+        Returns
+        -------
+        AIN
+            A new AIN instance with bounds determined by the chosen method
+            and expected value equal to the sample mean.
+
+        Raises
+        ------
+        ValueError
+            If data is empty or method is unknown.
+        TypeError
+            If data cannot be converted to numpy array.
+
+        Examples
+        --------
+        Basic usage with default method:
+        >>> data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        >>> x = AIN.from_samples(data)
+        >>> print(x)
+        [1.0000, 10.0000]_{5.5000}
+
+        Using percentile method (robust to outliers):
+        >>> data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 100]  # 100 is outlier
+        >>> x = AIN.from_samples(data, method='percentile')
+        >>> print(x)
+        [1.0900, 91.8100]_{14.5000}
+
+        Using IQR method (focuses on central 50%):
+        >>> data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        >>> x = AIN.from_samples(data, method='iqr')
+        >>> print(x)
+        [3.2500, 7.7500]_{5.5000}
+
+        Removing outliers before analysis:
+        >>> data = [100, 102, 98, 101, 99, 103, 500, 97, 102, 100]
+        >>> x = AIN.from_samples(data, method='minmax', clip_outliers=True)
+        >>> print(x)
+        [97.0000, 103.0000]_{100.2222}
+
+        Using MAD method (most robust):
+        >>> data = [10, 11, 10.5, 11.2, 10.8, 999]
+        >>> x = AIN.from_samples(data, method='mad')
+        >>> print(x)
+        [9.8500, 11.9500]_{11.9500}
+
+        Notes
+        -----
+        Method selection guide:
+        - 'minmax': Best for clean data without outliers
+        - 'percentile': Good balance between robustness and data retention
+        - 'iqr': Very robust, focuses on central tendency
+        - 'std': Assumes normal distribution, good for theoretical bounds
+        - 'mad': Most robust to outliers, works with any distribution
+
+        The clip_outliers option uses the IQR method with 1.5*IQR rule to
+        identify and remove outliers before applying the selected method.
+        """
+        # Convert to numpy array
+        try:
+            data = np.array(data, dtype=float)
+        except (ValueError, TypeError) as e:
+            raise TypeError(f"Data must be convertible to numpy array: {e}")
+
+        if len(data) == 0:
+            raise ValueError("Data cannot be empty")
+
+        # Remove outliers if requested
+        if clip_outliers:
+            Q1 = np.percentile(data, 25)
+            Q3 = np.percentile(data, 75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            data = data[(data >= lower_bound) & (data <= upper_bound)]
+
+            if len(data) == 0:
+                raise ValueError("All data points were identified as outliers")
+
+        # Compute bounds based on method
+        if method == 'minmax':
+            lower = np.min(data)
+            upper = np.max(data)
+
+        elif method == 'percentile':
+            lower = np.percentile(data, 1)
+            upper = np.percentile(data, 99)
+
+        elif method == 'iqr':
+            lower = np.percentile(data, 25)  # Q1
+            upper = np.percentile(data, 75)  # Q3
+
+        elif method == 'std':
+            mean = np.mean(data)
+            std = np.std(data)
+            lower = mean - 3 * std
+            upper = mean + 3 * std
+
+        elif method == 'mad':
+            median = np.median(data)
+            mad = np.median(np.abs(data - median))
+            lower = median - 3 * mad
+            upper = median + 3 * mad
+
+        else:
+            raise ValueError(f"Unknown method: '{method}'. Use 'minmax', 'percentile', 'iqr', 'std', or 'mad'.")
+
+        # Expected value is always the mean of the (possibly clipped) data
+        expected = np.mean(data)
+
+        # Ensure bounds are valid
+        if lower > upper:
+            lower, upper = upper, lower
+
+        if lower == upper:
+            # Degenerate case - all data points are identical
+            return cls(lower, upper, expected)
+
+        # Ensure expected is within bounds
+        if expected < lower:
+            expected = lower
+        elif expected > upper:
+            expected = upper
+
+        return cls(lower, upper, expected)
+
+
 # x = AIN(0, np.pi*3/2, np.pi/2)
 # result = x.sin()
 # print(result)
+
+# print all names of the class AIN
+# print([method for method in dir(AIN) if not method.startswith('_')])

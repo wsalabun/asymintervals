@@ -1160,5 +1160,120 @@ class AIN:
         ax.set_xlabel(ain_label)
         return ax
 
+    def sin(self):
+        """
+        Compute sine of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing sin(X).
+
+        Examples
+        --------
+        >>> x = AIN(0, np.pi/2, np.pi/4)
+        >>> result = x.sin()
+        >>> print(result)
+        [0.0000, 1.0000]_{0.6366}
+
+        >>> x = AIN(0, 0, 0)
+        >>> result = x.sin()
+        >>> print(result)
+        [0.0000, 0.0000]_{0.0000}
+        """
+
+        # Degenerate interval case
+        if self.lower == self.upper:
+            val = np.sin(self.expected)
+            return AIN(val, val, val)
+
+        # Find min and max of sine on [lower_bound, upper_bound]
+        lower_bound, upper_bound, expected_value = self.lower, self.upper, self.expected
+
+        candidates = [np.sin(lower_bound), np.sin(upper_bound)]
+
+        # Check whether the interval contains sine maxima (pi/2 + 2*k*pi)
+        k_max_start = int(np.ceil((lower_bound - np.pi / 2) / (2 * np.pi)))
+        k_max_end = int(np.floor((upper_bound - np.pi / 2) / (2 * np.pi)))
+        for k in range(k_max_start, k_max_end + 1):
+            x_max = np.pi / 2 + 2 * k * np.pi
+            if lower_bound <= x_max <= upper_bound:
+                candidates.append(1.0)
+
+        # Check whether the interval contains sine minima (-np.pi/2 + 2*k*np.pi)
+        k_min_start = int(np.ceil((lower_bound + np.pi / 2) / (2 * np.pi)))
+        k_min_end = int(np.floor((upper_bound + np.pi / 2) / (2 * np.pi)))
+        for k in range(k_min_start, k_min_end + 1):
+            x_min = -np.pi / 2 + 2 * k * np.pi
+            if lower_bound <= x_min <= upper_bound:
+                candidates.append(-1.0)
+
+        new_a = min(candidates)
+        new_b = max(candidates)
+
+        # Expected value using LOTUS (Law of the Unconscious Statistician)
+        new_c = (self.alpha * (np.cos(lower_bound) - np.cos(expected_value)) +
+                 self.beta * (np.cos(expected_value) - np.cos(upper_bound)))
+
+        return AIN(new_a, new_b, new_c)
 
 
+    def cos(self):
+        """
+        Compute cosine of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing cos(X).
+
+        Examples
+        --------
+        >>> x = AIN(0, np.pi/2, np.pi/4)
+        >>> result = x.cos()
+        >>> print(result)
+        [0.0000, 1.0000]_{0.6366}
+
+        >>> x = AIN(0, np.pi, np.pi/2)
+        >>> result = x.cos()
+        >>> print(result)
+        [-1.0000, 1.0000]_{0.0000}
+        """
+
+        # Degenerate case
+        if self.lower == self.upper:
+            val = np.cos(self.expected)
+            return AIN(val, val, val)
+
+        # Find min and max of cosine on [lower_bound, upper_bound]
+        lower_bound, upper_bound, expected_value = self.lower, self.upper, self.expected
+
+        candidates = [np.cos(lower_bound), np.cos(upper_bound)]
+
+        # Check whether the interval contains cosine maxima (2*k*pi)
+        k_max_start = int(np.ceil(lower_bound / (2 * np.pi)))
+        k_max_end = int(np.floor(upper_bound / (2 * np.pi)))
+        for k in range(k_max_start, k_max_end + 1):
+            x_max = 2 * k * np.pi
+            if lower_bound <= x_max <= upper_bound:
+                candidates.append(1.0)
+
+        # Check whether the interval contains cosine minima (pi + 2*k*pi)
+        k_min_start = int(np.ceil((lower_bound - np.pi) / (2 * np.pi)))
+        k_min_end = int(np.floor((upper_bound - np.pi) / (2 * np.pi)))
+        for k in range(k_min_start, k_min_end + 1):
+            x_min = np.pi + 2 * k * np.pi
+            if lower_bound <= x_min <= upper_bound:
+                candidates.append(-1.0)
+
+        new_a = min(candidates)
+        new_b = max(candidates)
+        # Expected value using LOTUS
+        new_c = (self.alpha * (np.sin(expected_value) - np.sin(lower_bound)) +
+                 self.beta * (np.sin(upper_bound) - np.sin(expected_value)))
+
+        return AIN(new_a, new_b, new_c)
+
+# x = AIN(0, np.pi*3/2, np.pi/2)
+# result = x.sin()
+# print(result)

@@ -1467,11 +1467,50 @@ class AIN:
         samples = np.array([self.quantile(el) for el in u])
         return np.round(samples, rounding_precision)
 
+    def to_list(self):
+        # WS_to_check_common_sense
+        """
+        Convert AIN to list [lower, upper, expected].
+
+        Returns
+        -------
+        list
+            [lower, upper, expected]
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> print(x.to_list())
+        [0, 10, 5]
+        """
+        return [self.lower, self.upper, self.expected]
+
+    def to_numpy(self):
+        # WS_to_check_common_sense
+        """
+        Convert AIN to numpy array [lower, upper, expected].
+
+        Returns
+        -------
+        numpy.ndarray
+            Array containing [lower, upper, expected]
+
+        Examples
+        --------
+        >>> x = AIN(0., 10., 5.)
+        >>> arr = x.to_numpy()
+        >>> print(arr)
+        [ 0. 10.  5.]
+        >>> print(type(arr))
+        <class 'numpy.ndarray'>
+        """
+        return np.array([self.lower, self.upper, self.expected])
+
 
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
 
-Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()']
+Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'to_numpy()']
 
 x = AIN(0,10,2)
 # data = x.samples(10000)

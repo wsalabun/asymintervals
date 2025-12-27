@@ -1421,7 +1421,7 @@ class AIN:
 
         return cls(lower, upper, expected)
 
-    def samples(self, n, rng=None):
+    def samples(self, n, rounding_precision=4, rng=None):
         """
         Generate random samples from the AIN distribution.
 
@@ -1458,20 +1458,19 @@ class AIN:
             u = rng.uniform(0, 1, n)
         else:
             u = np.random.uniform(0, 1, n)
-        samples = np.where(
-            u < self.alpha * (self.expected - self.lower),
-            u / self.alpha + self.lower,
-            (u - self.alpha * (self.expected - self.lower)) / self.beta + self.expected
-        )
-        return np.round(samples, 4)
+
+        samples = np.array([self.quantile(el) for el in u])
+        return np.round(samples, rounding_precision)
 
 
-# x = AIN(0, np.pi*3/2, np.pi/2)
-# result = x.sin()
-# print(result)
-
-# print all names of the class AIN
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
 
-Added_function_names = ['sin()', 'cos()', 'from_samples()']
+Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()']
+
+x = AIN(0,10,2)
+
+data = x.samples(100)
+print(data)
+print(len(data))
+print(np.mean(data))

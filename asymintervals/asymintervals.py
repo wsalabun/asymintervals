@@ -1473,9 +1473,11 @@ class AIN:
 
 Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()']
 
-# x = AIN(0,10,2)
-#
-# data = x.samples(1000)
+x = AIN(0,10,2)
+# data = x.samples(10000)
+# plt.hist(data, bins=50)
+# plt.show()
+# histogram(data)
 # print(data)
 # print(len(data))
 # print(np.mean(data))

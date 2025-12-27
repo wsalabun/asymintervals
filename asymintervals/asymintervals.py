@@ -1421,6 +1421,50 @@ class AIN:
 
         return cls(lower, upper, expected)
 
+    def samples(self, n, rng=None):
+        """
+        Generate random samples from the AIN distribution.
+
+        Parameters
+        ----------
+        n : int
+            Number of random samples to generate.
+
+        Returns
+        -------
+        numpy.ndarray
+            An array of `n` random samples drawn from the AIN distribution.
+
+        Raises
+        ------
+        ValueError
+            If `n` is not a positive integer.
+
+        Examples
+        --------
+        >>> ain = AIN(0, 10, 5)
+        >>> rng = np.random.default_rng(seed=42)
+        >>> samples = ain.samples(5, rng)
+        >>> print(samples)
+        [7.7396 4.3888 8.586  6.9737 0.9418]
+
+        Notes
+        -----
+        This method uses inverse transform sampling to generate samples according to the AIN distribution.
+        """
+        if not isinstance(n, int) or n <= 1:
+            raise ValueError("n must be a positive integer, greater than 1.")
+        if rng is not None:
+            u = rng.uniform(0, 1, n)
+        else:
+            u = np.random.uniform(0, 1, n)
+        samples = np.where(
+            u < self.alpha * (self.expected - self.lower),
+            u / self.alpha + self.lower,
+            (u - self.alpha * (self.expected - self.lower)) / self.beta + self.expected
+        )
+        return np.round(samples, 4)
+
 
 # x = AIN(0, np.pi*3/2, np.pi/2)
 # result = x.sin()
@@ -1428,3 +1472,6 @@ class AIN:
 
 # print all names of the class AIN
 # print([method for method in dir(AIN) if not method.startswith('_')])
+
+
+Added_function_names = ['sin()', 'cos()', 'from_samples()']

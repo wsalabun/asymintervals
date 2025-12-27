@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.ndimage import histogram
 
 
 class AIN:
@@ -1429,6 +1430,10 @@ class AIN:
         ----------
         n : int
             Number of random samples to generate.
+        rounding_precision : int, optional
+            Number of decimal places to round the samples (default is 4).
+        rng : numpy.random.Generator, optional
+            A NumPy random number generator instance for reproducibility (default is None, which uses the global random state).
 
         Returns
         -------
@@ -1444,8 +1449,8 @@ class AIN:
         --------
         >>> ain = AIN(0, 10, 5)
         >>> rng = np.random.default_rng(seed=42)
-        >>> samples = ain.samples(5, rng)
-        >>> print(samples)
+        >>> data = ain.samples(5, 4, rng)
+        >>> print(data)
         [7.7396 4.3888 8.586  6.9737 0.9418]
 
         Notes
@@ -1468,9 +1473,9 @@ class AIN:
 
 Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()']
 
-x = AIN(0,10,2)
-
-data = x.samples(100)
-print(data)
-print(len(data))
-print(np.mean(data))
+# x = AIN(0,10,2)
+#
+# data = x.samples(1000)
+# print(data)
+# print(len(data))
+# print(np.mean(data))

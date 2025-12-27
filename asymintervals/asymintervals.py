@@ -1509,14 +1509,5 @@ class AIN:
 
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'to_numpy()']
 
-Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'to_numpy()']
-
-x = AIN(0,10,2)
-# data = x.samples(10000)
-# plt.hist(data, bins=50)
-# plt.show()
-# histogram(data)
-# print(data)
-# print(len(data))
-# print(np.mean(data))

@@ -1198,6 +1198,101 @@ class AIN:
 
         return self.lower <= value <= self.upper
 
+    def clamp(self, min_val, max_val):
+        """
+        Clamp (clip) the interval to [min_val, max_val].
+
+        Parameters
+        ----------
+        min_val : float
+            Minimum value.
+        max_val : float
+            Maximum value.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance with values clamped to [min_val, max_val].
+
+        Raises
+        ------
+        ValueError
+            If min_val >= max_val.
+
+        Examples
+        --------
+        >>> x = AIN(-5, 10, 2)
+        >>> result = x.clamp(0, 5)
+        >>> print(result)
+        [0.0000, 5.0000]_{2.2232}
+        """
+        if not isinstance(min_val, (int, float)) or not isinstance(max_val, (int, float)):
+            raise TypeError("min_val and max_val must be numbers")
+        if min_val >= max_val:
+            raise ValueError("min_val must be less than max_val")
+
+        # Clamp the bounds
+        new_lower = max(min_val, min(max_val, self.lower))
+        new_upper = max(min_val, min(max_val, self.upper))
+
+        # Compute expected value
+        # This is complex because clamp is piecewise
+        if self.upper <= min_val:
+            # Entire interval below min
+            new_expected = min_val
+        elif self.lower >= max_val:
+            # Entire interval above max
+            new_expected = max_val
+        elif self.lower >= min_val and self.upper <= max_val:
+            # Entire interval within bounds
+            new_expected = self.expected
+        else:
+            # Interval spans clamp boundaries - use LOTUS
+            # We need to integrate piecewise
+            total_expected = 0
+
+            # Part 1: values clamped to min_val
+            if self.lower < min_val:
+                if self.expected < min_val:
+                    prob_below = self.alpha * (self.expected - self.lower)
+                    total_expected += min_val * prob_below
+                else:
+                    prob_below = self.alpha * (min_val - self.lower)
+                    total_expected += min_val * prob_below
+
+            # Part 2: values in [min_val, max_val]
+            if self.lower < max_val and self.upper > min_val:
+                a = max(self.lower, min_val)
+                b = min(self.upper, max_val)
+                c = self.expected
+
+                if a <= c <= b:
+                    # Expected is in unclamped region
+                    expected_unclamped = (self.alpha * (c ** 2 / 2 - a ** 2 / 2) +
+                                          self.beta * (b ** 2 / 2 - c ** 2 / 2))
+                elif c < a:
+                    # Expected is below - use beta distribution
+                    expected_unclamped = self.beta * (b ** 2 / 2 - a ** 2 / 2)
+                else:
+                    # Expected is above - use alpha distribution
+                    expected_unclamped = self.alpha * (b ** 2 / 2 - a ** 2 / 2)
+
+                total_expected += expected_unclamped
+
+            # Part 3: values clamped to max_val
+            if self.upper > max_val:
+                if self.expected > max_val:
+                    prob_above = self.beta * (self.upper - self.expected)
+                    total_expected += max_val * prob_above
+                else:
+                    prob_above = self.beta * (self.upper - max_val)
+                    total_expected += max_val * prob_above
+
+            new_expected = total_expected
+
+        return AIN(new_lower, new_upper, new_expected)
+
+
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plot the intervals and key values of an `AIN` instance.
@@ -1972,7 +2067,5 @@ for i in dir(AIN):
 
 # Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()']
 
-
-x = AIN(0,10,7)
 
 

@@ -930,6 +930,132 @@ class AIN:
         """
         return (self.upper - self.lower) / 2
 
+    def is_degenerate(self):
+        """
+        Check if the interval is degenerate (a single point).
+
+        Returns
+        -------
+        bool
+            True if lower == upper, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(5, 5, 5)
+        >>> print(x.is_degenerate())
+        True
+
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.is_degenerate())
+        False
+        """
+        return self.lower == self.upper
+
+    def is_positive(self):
+        """
+        Check if the entire interval is positive.
+
+        Returns
+        -------
+        bool
+            True if lower > 0, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.is_positive())
+        True
+
+        >>> x = AIN(-5, 10, 2)
+        >>> print(x.is_positive())
+        False
+        """
+        return self.lower > 0
+
+    def is_negative(self):
+        """
+        Check if the entire interval is negative.
+
+        Returns
+        -------
+        bool
+            True if upper < 0, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(-10, -1, -5)
+        >>> print(x.is_negative())
+        True
+
+        >>> x = AIN(-5, 10, 2)
+        >>> print(x.is_negative())
+        False
+        """
+        return self.upper < 0
+
+    def is_zero(self):
+        """
+        Check if the interval represents exactly zero.
+
+        Returns
+        -------
+        bool
+            True if AIN(0, 0, 0), False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(0, 0, 0)
+        >>> print(x.is_zero())
+        True
+
+        >>> x = AIN(-1, 1, 0)
+        >>> print(x.is_zero())
+        False
+        """
+        return self.lower == 0 and self.upper == 0 and self.expected == 0
+
+    def has_zero(self):
+        """
+        Check if the interval contains zero.
+
+        Returns
+        -------
+        bool
+            True if lower <= 0 <= upper, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(-5, 5, 0)
+        >>> print(x.has_zero())
+        True
+
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.has_zero())
+        False
+        """
+        return self.lower <= 0 <= self.upper
+
+    def is_symmetric(self):
+        """
+        Check if the interval is symmetric (expected at midpoint).
+
+        Returns
+        -------
+        bool
+            True if expected is at the midpoint (asymmetry ≈ 0), False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> print(x.is_symmetric())
+        True
+
+        >>> x = AIN(0, 10, 3)
+        >>> print(x.is_symmetric())
+        False
+        """
+        return np.isclose(self.asymmetry, 0, atol=1e-9)
+
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plot the intervals and key values of an `AIN` instance.
@@ -1609,6 +1735,6 @@ for i in dir(AIN):
     print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()']
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()']
 
 

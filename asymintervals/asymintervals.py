@@ -1692,6 +1692,67 @@ class AIN:
 
         return AIN(new_a, new_b, new_c)
 
+    def tan(self):
+        """
+        Compute tangent of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing tan(X).
+
+        Raises
+        ------
+        ValueError
+            If the interval contains or touches a discontinuity (asymptote) of tan(x).
+            tan(x) has asymptotes at x = π/2 + kπ for any integer k.
+
+        Examples
+        --------
+        >>> x = AIN(0, np.pi/4, np.pi/8)
+        >>> result = x.tan()
+        >>> print(result)
+        [0.0000, 1.0000]_{0.4413}
+
+        >>> x = AIN(-np.pi/4, np.pi/4, 0)
+        >>> result = x.tan()
+        >>> print(result)
+        [-1.0000, 1.0000]_{0.0000}
+        """
+
+        # Degenerate case
+        if self.lower == self.upper:
+            # Check whether the point is an asymptote
+            if np.abs(np.cos(self.expected)) < 1e-10:
+                raise ValueError(
+                    f"tan(x) is undefined at x = {self.expected:.4f} (asymptote at π/2 + kπ)"
+                )
+            val = np.tan(self.expected)
+            return AIN(val, val, val)
+
+        a, b, c = self.lower, self.upper, self.expected
+
+        # Check whether the interval contains or touches a tangent asymptote (pi/2 + k*pi)
+        k_asymp_start = int(np.ceil((a - np.pi / 2) / np.pi))
+        k_asymp_end = int(np.floor((b - np.pi / 2) / np.pi))
+
+        for k in range(k_asymp_start, k_asymp_end + 1):
+            x_asymp = np.pi / 2 + k * np.pi
+            if a <= x_asymp <= b:
+                raise ValueError(
+                    f"The interval [{a:.4f}, {b:.4f}] contains a discontinuity of tan(x) at x = {x_asymp:.4f}. "
+                    f"tan(x) is undefined at x = π/2 + kπ."
+                )
+
+        # If there are no asymptotes, tan is monotonically increasing
+        new_a = np.tan(a)
+        new_b = np.tan(b)
+
+        new_c = (self.alpha * np.log(np.abs(np.cos(a) / np.cos(c))) +
+                 self.beta * np.log(np.abs(np.cos(c) / np.cos(b))))
+
+        return AIN(new_a, new_b, new_c)
+
     @classmethod
     def from_samples(cls, data, method='minmax', clip_outliers=False):
         """
@@ -2218,7 +2279,8 @@ for i in dir(AIN):
     print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
+# Added_function_names = ['sin()', 'cos()', 'tan()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
+
 
 
 

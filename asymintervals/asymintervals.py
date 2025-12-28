@@ -1485,6 +1485,39 @@ class AIN:
         """
         return [self.lower, self.upper, self.expected]
 
+    @classmethod
+    def from_list(cls, lst):
+        # WS_to_check_common_sense
+        """
+        Create AIN from list [lower, upper, expected].
+
+        Parameters
+        ----------
+        lst : list
+            List containing [lower, upper, expected]
+
+        Returns
+        -------
+        AIN
+            AIN instance created from the list.
+
+        Raises
+        ------
+        ValueError
+            If the list does not contain exactly three elements.
+
+        Examples
+        --------
+        >>> lst = [0, 10, 5]
+        >>> x = AIN.from_list(lst)
+        >>> print(x)
+        [0.0000, 10.0000]_{5.0000}
+        """
+        if not isinstance(lst, list) or len(lst) != 3:
+            raise ValueError("Input must be a list of three elements: [lower, upper, expected]")
+        return cls(lst[0], lst[1], lst[2])
+
+
     def to_numpy(self):
         # WS_to_check_common_sense
         """
@@ -1506,8 +1539,42 @@ class AIN:
         """
         return np.array([self.lower, self.upper, self.expected])
 
+    @classmethod
+    def from_numpy(cls, arr):
+        # WS_to_check_common_sense
+        """
+        Create AIN from numpy array [lower, upper, expected].
 
+        Parameters
+        ----------
+        arr : numpy.ndarray
+            Numpy array containing [lower, upper, expected]
+
+        Returns
+        -------
+        AIN
+            AIN instance created from the numpy array.
+
+        Raises
+        ------
+        ValueError
+            If the array does not contain exactly three elements.
+
+        Examples
+        --------
+        >>> arr = np.array([0., 10., 5.])
+        >>> x = AIN.from_numpy(arr)
+        >>> print(x)
+        [0.0000, 10.0000]_{5.0000}
+        """
+        if not isinstance(arr, np.ndarray) or arr.shape != (3,):
+            raise ValueError("Input must be a numpy array of shape (3,): [lower, upper, expected]")
+        return cls(arr[0], arr[1], arr[2])
+
+for i in dir(AIN):
+    print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'to_numpy()']
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()']
+
 

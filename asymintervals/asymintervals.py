@@ -1682,6 +1682,165 @@ class AIN:
 
             return AIN(new_a, new_b, new_c)
 
+    def __rpow__(self, a):
+        """
+        Compute a^x where `a` is the base and `self` (x) is the `AIN` instance.
+
+        Allows expressions like `2 ** AIN(1, 2, 1.5)`.
+
+        Parameters
+        ----------
+        a : float or int
+            The base of the power function. Must be positive and not equal to 1.
+
+        Returns
+        -------
+        AIN
+            A new `AIN` instance representing the result of a^x operation.
+
+        Raises
+        ------
+        TypeError
+            If `a` is not a number (int or float).
+        ValueError
+            If `a <= 0` or `a == 1`.
+
+        Examples
+        --------
+        >>> a = AIN(1, 2, 1.5)
+        >>> print(2 ** a)
+        [2.0000, 4.0000]_{2.8854}
+        """
+
+
+        # Usage of np.array
+        if isinstance(self, np.ndarray):
+            return np.array([a ** item for item in self])
+
+        if not isinstance(a, (int, float)):
+            raise TypeError(f"a is not a number (int or float)")
+
+        if a <= 0 or a == 1:
+            raise ValueError(f"a must be positive and not equal to 1")
+
+        new_lower = float(a ** self.lower)
+        new_upper = float(a ** self.upper)
+
+        if self.lower == self.upper:
+            new_expected = float(a ** self.expected)
+        else:
+            # We reverse the subtraction so that the difference is positive.
+            new_expected = float((self.alpha * ((a ** self.expected) - (a ** self.lower)) +
+                                  self.beta * ((a ** self.upper) - (a ** self.expected))) / np.log(a))
+
+        res = AIN(new_lower, new_upper, new_expected)
+        return res
+
+    def log(self):
+        """
+        Computes the natural logarithm (ln(x)) of the current `AIN` instance.
+        Returns a new `AIN` instance representing the result.
+
+        - When computing ln(x) of an `AIN` instance, the resulting `lower` and `upper`
+        values are calculated by applying the natural logarithm function to the
+        corresponding bounds of the current `AIN` instance.
+        - The `expected` value is calculated using the formula:
+          c_ln = α(c·ln(c) - c - a·ln(a) + a) + β(b·ln(b) - b - c·ln(c) + c)
+          where a = lower, b = upper, c = expected, α = alpha, β = beta
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        AIN
+            Returns a new `AIN` instance representing the result of the natural logarithm operation,
+            with the `lower`, `upper`, and `expected` values updated accordingly based
+            on the operation.
+
+        Raises
+        ------
+        TypeError
+            If `self` is not an instance of `AIN`.
+        ValueError
+            If `lower <= 0`, as the natural logarithm is undefined for non-positive values.
+
+        Examples
+        --------
+        Natural logarithm of an `AIN` instance:
+        >>> a = AIN(1, np.e, 2)
+        >>> print(a.log())
+        [0.0000, 1.0000]_{0.6587}
+        """
+
+        if not isinstance(self, AIN):
+            raise TypeError(f"self is not an instance of AIN")
+
+        if self.lower <= 0:
+            raise ValueError(
+                f"lower must be positive (> 0), got lower={self.lower}. Natural logarithm is undefined for non-positive values.")
+
+        new_lower = np.log(self.lower)
+        new_upper = np.log(self.upper)
+
+        new_expected = (self.alpha * (self.expected * np.log(self.expected) - self.expected -
+                                      self.lower * np.log(self.lower) + self.lower) +
+                        self.beta * (self.upper * np.log(self.upper) - self.upper -
+                                     self.expected * np.log(self.expected) + self.expected))
+
+        res = AIN(new_lower, new_upper, new_expected)
+        return res
+
+
+    def exp(self):
+        """
+        Computes the exponential (e^x) of the current `AIN` instance.
+        Returns a new `AIN` instance representing the result.
+
+        - When computing exp() of an `AIN` instance, the resulting `lower` and `upper`
+        values are calculated by applying the exponential function to the corresponding values.
+        - The `expected` value is calculated as the mean value of exp(x) over the interval
+        [lower, upper], given by (e^upper - e^lower) / (upper - lower).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        AIN
+            Returns a new `AIN` instance representing the result of the exponential operation,
+            with the `lower`, `upper`, and `expected` values updated accordingly.
+
+        Raises
+        ------
+        TypeError
+            If `self` is not an instance of `AIN`.
+        ValueError
+            If `lower >= upper`.
+
+        Examples
+        --------
+        Exponential of an `AIN` instance:
+        >>> a = AIN(0, 1, 0.5)
+        >>> print(a.exp())
+        [1.0000, 2.7183]_{1.7183}
+        """
+
+        if not isinstance(self, AIN):
+            raise TypeError(f"self is not an instance of AIN")
+
+        if self.lower >= self.upper:
+            raise ValueError(f"lower ({self.lower}) must be less than upper ({self.upper})")
+
+        new_lower = np.exp(self.lower)
+        new_upper = np.exp(self.upper)
+        new_expected = self.alpha*(np.exp(self.expected)-np.exp(self.lower))+self.beta*(np.exp(self.upper)-np.exp(self.expected))
+
+        res = AIN(new_lower, new_upper, new_expected)
+        return res
+
     def sin(self):
         """
         Compute sine of an AIN instance.

@@ -2218,7 +2218,8 @@ for i in dir(AIN):
     print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()']
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
+
 
 
 

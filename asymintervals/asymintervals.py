@@ -913,6 +913,23 @@ class AIN:
         """
         return (self.upper + self.lower) / 2
 
+    def radius(self):
+        """
+        Return the radius of the interval.
+
+        Returns
+        -------
+        float
+            The radius ((upper - lower) / 2).
+
+        Examples
+        --------
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.radius())
+        4.5
+        """
+        return (self.upper - self.lower) / 2
+
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plot the intervals and key values of an `AIN` instance.
@@ -1592,6 +1609,6 @@ for i in dir(AIN):
     print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()']
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()']
 
 

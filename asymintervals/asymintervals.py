@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.ma.core import max_val
 from scipy.ndimage import histogram
 
 
@@ -1292,6 +1293,25 @@ class AIN:
 
         return AIN(new_lower, new_upper, new_expected)
 
+    def copy(self):
+        # WS_to_check_common_sense
+        """
+        Create a deep copy of the AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance with the same values.
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> y = x.copy()
+        >>> print(y)
+        [0.0000, 10.0000]_{5.0000}
+        """
+        return AIN(self.lower, self.upper, self.expected)
+
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
@@ -2059,6 +2079,139 @@ class AIN:
         AIN(0, 10, 5)
         """
         return cls(t[0], t[1], t[2])
+
+    def to_json(self):
+        """
+        Convert AIN to JSON string.
+
+        Returns
+        -------
+        str
+            JSON string representation of the AIN
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> j = x.to_json()
+        >>> print(j)
+        {"lower": 0, "upper": 10, "expected": 5}
+        """
+        import json
+        data = {
+            'lower': self.lower,
+            'upper': self.upper,
+            'expected': self.expected
+        }
+        return json.dumps(data)
+
+    @classmethod
+    def from_json(cls, json_str):
+        """
+        Create AIN from a JSON string.
+
+        This is the inverse of to_json(). Parses a JSON string and creates
+        an AIN instance from the data.
+
+        Parameters
+        ----------
+        json_str : str
+            JSON string containing AIN data. Must contain at least 'lower' and 'upper' keys.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance.
+
+        Raises
+        ------
+        TypeError
+            If json_str is not a string
+        ValueError
+            If JSON is invalid or missing required keys
+
+        Examples
+        --------
+        >>> json_str = '{"lower": 0, "upper": 10, "expected": 5}'
+        >>> x = AIN.from_json(json_str)
+        >>> print(x)
+        [0.0000, 10.0000]_{5.0000}
+
+        >>> # Round-trip conversion
+        >>> original = AIN(1, 5, 3)
+        >>> json_str = original.to_json()
+        >>> restored = AIN.from_json(json_str)
+        >>> print(restored)
+        [1.0000, 5.0000]_{3.0000}
+        """
+        import json
+
+        if not isinstance(json_str, str):
+            raise TypeError("Input must be a string")
+
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON string: {e}")
+
+        if not isinstance(data, dict):
+            raise ValueError("JSON must represent a dictionary/object")
+
+        if 'lower' not in data or 'upper' not in data:
+            raise ValueError("JSON must contain 'lower' and 'upper' keys")
+
+        return cls(data['lower'], data['upper'], data.get('expected'))
+    @classmethod
+    def normalize_ains_list(cls, list_ain, mode='minmax', type='profit'):
+        """
+        Normalize a list of AIN instances.
+
+        Parameters
+        ----------
+        list_ain : list
+            List of AIN instances to normalize.
+        mode : str, optional
+            Normalization mode. Reserved for future use; currently, only the default
+            behavior is applied regardless of the mode. Defaults to 'minmax'.
+
+        Returns
+        -------
+        list
+            List of normalized AIN instances representing a probability distribution.
+
+        Raises
+        ------
+        ValueError
+            If the input list is empty or contains non-AIN elements.
+
+        Examples
+        --------
+        >>> a1 = AIN(2, 10, 5)
+        >>> a2 = AIN(10, 20, 15)
+        >>> normalized = AIN.normalize_ains_list([a1, a2])
+        >>> for ain in normalized:
+        ...     print(ain)
+        [0.0000, 0.4444]_{0.1667}
+        [0.4444, 1.0000]_{0.7222}
+        """
+    # Ensure all elements are AIN instances before computing the total
+        for ain in list_ain:
+            if not isinstance(ain, AIN):
+                raise ValueError("All elements in the list must be AIN instances.")
+
+        max_val = max([ain.upper for ain in list_ain])
+        min_val = min([ain.lower for ain in list_ain])
+
+        if mode == 'minmax':
+            if type=='profit':
+                normalized_list = [(ain-min_val)/(max_val-min_val) for ain in list_ain]
+            elif type=='cost':
+                normalized_list = [(max_val-ain)/(max_val-min_val) for ain in list_ain]
+            else:
+                raise ValueError(f"Unknown type: '{type}'. Currently, only 'profit' and 'cost' are supported.")
+        else:
+            raise ValueError(f"Unknown normalization mode: '{mode}'. Currently, only 'minmax' is supported.")
+
+        return normalized_list
 
 
 for i in dir(AIN):

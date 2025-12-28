@@ -1578,6 +1578,110 @@ class AIN:
         ax.set_xlabel(ain_label)
         return ax
 
+    def __abs__(self):
+        """
+        Compute the absolute value of an AIN instance.
+
+        The absolute value operation handles three cases based on the position of the interval
+        relative to zero. This implementation follows the LOTUS (Law of the Unconscious Statistician)
+        methodology to compute the expected value of |X|.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing the absolute value of the interval.
+
+        Raises
+        ------
+        None
+
+        Notes
+        -----
+        The method handles three distinct cases:
+
+        **Case 1:** If the entire interval is non-negative (a ≥ 0), the absolute value
+        does not change the interval: |[a, b]_c| = [a, b]_c
+
+        **Case 2:** If the entire interval is non-positive (b ≤ 0), the absolute value
+        negates and reverses the bounds: |[a, b]_c| = [-b, -a]_{-c}
+
+        **Case 3:** If the interval contains zero (a < 0 < b), the absolute value results
+        in an interval starting at zero. The expected value is computed using LOTUS:
+
+        For c > 0 (expected value in positive part):
+            E(|X|) = α(c²/2 - a²/2) + β(b²/2 - c²/2)
+
+        For c ≤ 0 (expected value in negative part):
+            E(|X|) = α(0 - a²/2) + β(b²/2 - 0)
+
+        The upper bound becomes max(-a, b) to capture the maximum absolute value.
+
+        Examples
+        --------
+        Case 1: Non-negative interval
+        >>> a = AIN(1, 4, 2)
+        >>> print(abs(a))
+        [1.0000, 4.0000]_{2.0000}
+
+        Case 2: Non-positive interval
+        >>> b = AIN(-4, -1, -2)
+        >>> print(abs(b))
+        [1.0000, 4.0000]_{2.0000}
+
+        Case 3: Interval containing zero (c > 0)
+        >>> c = AIN(-2, 3, 1)
+        >>> result = abs(c)
+        >>> print(result)
+        [0.0000, 3.0000]_{1.5333}
+
+        Case 3: Interval containing zero (c ≤ 0)
+        >>> d = AIN(-3, 2, -1)
+        >>> result = abs(d)
+        >>> print(result)
+        [0.0000, 3.0000]_{1.5333}
+
+        Symmetric interval around zero
+        >>> e = AIN(-2, 2, 0)
+        >>> result = abs(e)
+        >>> print(result)
+        [0.0000, 2.0000]_{1.0000}
+        """
+        # Case 1: Interval is non-negative (a ≥ 0)
+        if self.lower >= 0:
+            return AIN(self.lower, self.upper, self.expected)
+
+        # Case 2: Interval is non-positive (b ≤ 0)
+        elif self.upper <= 0:
+            return AIN(-self.upper, -self.lower, -self.expected)
+
+        # Case 3: Interval contains zero (a < 0 < b)
+        else:
+            new_a = 0
+            new_b = max(-self.lower, self.upper)
+
+            # Degenerate case
+            if self.lower == self.upper:
+                new_c = abs(self.expected)
+            else:
+                # Expected value is in the positive part (c > 0)
+                # E(|X|) = α∫_a^0(-x)dx + α∫_0^c(x)dx + β∫_c^b(x)dx
+                #        = α·a²/2 + α·c²/2 + β·b²/2 - β·c²/2
+                if self.expected > 0:
+                    new_c = (self.alpha * self.lower ** 2 / 2 +
+                             self.alpha * self.expected ** 2 / 2 +
+                             self.beta * self.upper ** 2 / 2 -
+                             self.beta * self.expected ** 2 / 2)
+                # Expected value is in the negative part or at zero (c ≤ 0)
+                # E(|X|) = α∫_a^c(-x)dx + β∫_c^0(-x)dx + β∫_0^b(x)dx
+                #        = α·a²/2 - α·c²/2 + β·c²/2 + β·b²/2
+                else:
+                    new_c = (self.alpha * self.lower ** 2 / 2 -
+                             self.alpha * self.expected ** 2 / 2 +
+                             self.beta * self.expected ** 2 / 2 +
+                             self.beta * self.upper ** 2 / 2)
+
+            return AIN(new_a, new_b, new_c)
+
     def sin(self):
         """
         Compute sine of an AIN instance.
@@ -2273,11 +2377,6 @@ class AIN:
             raise ValueError(f"Unknown normalization mode: '{mode}'. Currently, only 'minmax' is supported.")
 
         return normalized_list
-
-
-for i in dir(AIN):
-    print(i)
-# print([method for method in dir(AIN) if not method.startswith('_')])
 
 # Added_function_names = ['sin()', 'cos()', 'tan()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
 

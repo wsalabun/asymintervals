@@ -1056,6 +1056,72 @@ class AIN:
         """
         return np.isclose(self.asymmetry, 0, atol=1e-9)
 
+    def overlaps(self, other):
+        """
+        Check if two intervals overlap.
+
+        Parameters
+        ----------
+        other : AIN
+            Another AIN instance.
+
+        Returns
+        -------
+        bool
+            True if intervals overlap, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> y = AIN(5, 15, 10)
+        >>> print(x.overlaps(y))
+        True
+
+        >>> x = AIN(0, 5, 2)
+        >>> y = AIN(10, 15, 12)
+        >>> print(x.overlaps(y))
+        False
+        """
+        if not isinstance(other, AIN):
+            raise TypeError("other must be an AIN instance")
+
+        return not (self.upper < other.lower or self.lower > other.upper)
+
+    def is_subset_of(self, other):
+        """
+        Check if this interval is a subset of another interval.
+
+        An interval A is a subset of B if A is completely contained within B:
+        B.lower <= A.lower and A.upper <= B.upper
+
+        Parameters
+        ----------
+        other : AIN
+            Another AIN instance.
+
+        Returns
+        -------
+        bool
+            True if self is a subset of other, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(2, 8, 5)
+        >>> y = AIN(0, 10, 5)
+        >>> print(x.is_subset_of(y))
+        True
+
+        >>> x = AIN(0, 10, 5)
+        >>> y = AIN(2, 8, 5)
+        >>> print(x.is_subset_of(y))
+        False
+        """
+        if not isinstance(other, AIN):
+            raise TypeError("other must be an AIN instance")
+
+        return other.lower <= self.lower and self.upper <= other.upper
+
+
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plot the intervals and key values of an `AIN` instance.
@@ -1731,10 +1797,11 @@ class AIN:
             raise ValueError("Input must be a numpy array of shape (3,): [lower, upper, expected]")
         return cls(arr[0], arr[1], arr[2])
 
-for i in dir(AIN):
-    print(i)
+# for i in dir(AIN):
+#     print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
-# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()']
+# Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()']
+
 
 

@@ -913,6 +913,23 @@ class AIN:
         """
         return (self.upper + self.lower) / 2
 
+    def width(self):
+        """
+        Return the width of the interval.
+
+        Returns
+        -------
+        float
+            The width (upper - lower).
+
+        Examples
+        --------
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.width())
+        9
+        """
+        return self.upper - self.lower
+
     def radius(self):
         """
         Return the radius of the interval.
@@ -1153,6 +1170,33 @@ class AIN:
             raise TypeError("other must be an AIN instance")
 
         return not self.overlaps(other)
+
+    def contains(self, value):
+        """
+        Check if a value is contained in the interval.
+
+        Parameters
+        ----------
+        value : float or int
+            The value to check.
+
+        Returns
+        -------
+        bool
+            True if lower <= value <= upper, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> print(x.contains(5))
+        True
+        >>> print(x.contains(15))
+        False
+        """
+        if not isinstance(value, (int, float)):
+            raise TypeError("value must be a number")
+
+        return self.lower <= value <= self.upper
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
@@ -1725,6 +1769,7 @@ class AIN:
         samples = np.array([self.quantile(el) for el in u])
         return np.round(samples, rounding_precision)
 
+
     def to_list(self):
         # WS_to_check_common_sense
         """
@@ -1829,11 +1874,105 @@ class AIN:
             raise ValueError("Input must be a numpy array of shape (3,): [lower, upper, expected]")
         return cls(arr[0], arr[1], arr[2])
 
-# for i in dir(AIN):
-#     print(i)
+    def to_dict(self):
+        """
+        Export AIN to a dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary containing all AIN attributes.
+
+        Examples
+        --------
+        >>> x = AIN(0, 4, 2)
+        >>> d = x.to_dict()
+        >>> print(d)
+        {'lower': 0, 'upper': 4, 'expected': 2}
+        """
+        return {
+            'lower': self.lower,
+            'upper': self.upper,
+            'expected': self.expected,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Create AIN from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            Dictionary containing at least 'lower', 'upper', and optionally 'expected'.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance.
+
+        Examples
+        --------
+        >>> d = {'lower': 0, 'upper': 10, 'expected': 5}
+        >>> x = AIN.from_dict(d)
+        >>> print(x)
+        [0.0000, 10.0000]_{5.0000}
+        """
+        if not isinstance(d, dict):
+            raise TypeError("Input must be a dictionary")
+
+        if 'lower' not in d or 'upper' not in d:
+            raise ValueError("Dictionary must contain 'lower' and 'upper' keys")
+
+        return cls(d['lower'], d['upper'], d.get('expected'))
+
+    def to_tuple(self):
+        """
+        Convert AIN to tuple (lower, upper, expected).
+
+        Returns
+        -------
+        tuple
+            (lower, upper, expected)
+
+        Examples
+        --------
+        >>> x = AIN(0, 10, 5)
+        >>> print(x.to_tuple())
+        (0, 10, 5)
+        """
+        return (self.lower, self.upper, self.expected)
+
+    @classmethod
+    def from_tuple(cls, t):
+        """
+        Parameters
+        ----------
+        t : tuple
+            Tuple containing at least 'lower', 'upper', and optionally 'expected'.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance.
+
+        Examples
+        --------
+        >>> x = (0, 10, 5)
+        >>> ain = AIN.from_tuple(x)
+        >>> ain
+        AIN(0, 10, 5)
+        """
+        return cls(t[0], t[1], t[2])
+
+
+for i in dir(AIN):
+    print(i)
 # print([method for method in dir(AIN) if not method.startswith('_')])
 
 # Added_function_names = ['sin()', 'cos()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()']
 
+
+x = AIN(0,10,7)
 
 

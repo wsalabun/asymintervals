@@ -896,6 +896,23 @@ class AIN:
 
         print("====================================")
 
+    def midpoint(self):
+        """
+        Return the midpoint of the interval.
+
+        Returns
+        -------
+        float
+            The midpoint ((upper + lower) / 2).
+
+        Examples
+        --------
+        >>> x = AIN(1, 10, 5)
+        >>> print(x.midpoint())
+        5.5
+        """
+        return (self.upper + self.lower) / 2
+
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """
         Plot the intervals and key values of an `AIN` instance.

@@ -1121,6 +1121,38 @@ class AIN:
 
         return other.lower <= self.lower and self.upper <= other.upper
 
+    def is_disjoint(self, other):
+        """
+        Check if two intervals are disjoint (do not overlap).
+
+        Two intervals are disjoint if they have no common points.
+
+        Parameters
+        ----------
+        other : AIN
+            Another AIN instance.
+
+        Returns
+        -------
+        bool
+            True if intervals are disjoint, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(0, 5, 2)
+        >>> y = AIN(10, 15, 12)
+        >>> print(x.is_disjoint(y))
+        True
+
+        >>> x = AIN(0, 10, 5)
+        >>> y = AIN(5, 15, 10)
+        >>> print(x.is_disjoint(y))
+        False
+        """
+        if not isinstance(other, AIN):
+            raise TypeError("other must be an AIN instance")
+
+        return not self.overlaps(other)
 
     def plot(self, ain_lw=2.0, ain_c='k', ain_label=''):
         """

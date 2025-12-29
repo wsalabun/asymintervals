@@ -1905,6 +1905,8 @@ class AIN:
         res = AIN(new_lower, new_upper, new_expected)
         return res
 
+
+
     def sin(self):
         """
         Compute sine of an AIN instance.
@@ -2603,6 +2605,3 @@ class AIN:
 
 # Added_function_names = ['sin()', 'cos()', 'tan()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
 
-x = AIN(1,10)
-x = x.log10()
-print(x)

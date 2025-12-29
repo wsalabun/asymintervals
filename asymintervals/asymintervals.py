@@ -1030,6 +1030,32 @@ class AIN:
         """
         return self.lower == 0 and self.upper == 0 and self.expected == 0
 
+    def isclose_to_zero(self, atol=1e-9):
+        """
+        Check if the interval is close to zero within a specified absolute tolerance.
+
+        Parameters
+        ----------
+        atol : float, optional
+            The absolute tolerance level (default is 1e-9).
+
+        Returns
+        -------
+        bool
+            True if both lower and upper bounds are within the absolute tolerance of zero, False otherwise.
+
+        Examples
+        --------
+        >>> x = AIN(-1e-10, 1e-10, 0)
+        >>> print(x.isclose_to_zero())
+        True
+
+        >>> x = AIN(-1e-5, 1e-5, 0)
+        >>> print(x.isclose_to_zero(atol=1e-6))
+        False
+        """
+        return abs(self.lower) <= atol and abs(self.upper) <= atol
+
     def has_zero(self):
         """
         Check if the interval contains zero.

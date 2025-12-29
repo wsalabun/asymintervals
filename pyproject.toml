@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "asymintervals"
 version = "1.2.0"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     {name = "Wojciech Sałabun", email = "w.salabun@il-pib.pl"},
 ]

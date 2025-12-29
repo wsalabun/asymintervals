@@ -1796,6 +1796,66 @@ class AIN:
         res = AIN(new_lower, new_upper, new_expected)
         return res
 
+    def log2(self):
+        """
+        Compute base-2 logarithm of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing log2(X).
+
+        Raises
+        ------
+        ValueError
+            If lower bound is non-positive.
+
+        Examples
+        --------
+        >>> x = AIN(1, 8, 4)
+        >>> result = x.log2()
+        >>> print(result)
+        [0.0000, 3.0000]_{1.7954}
+        """
+        if self.lower <= 0:
+            raise ValueError("log2 requires positive values")
+
+        # log2(x) = ln(x) / ln(2)
+        result_ln = self.log()
+        return AIN(result_ln.lower / np.log(2),
+                   result_ln.upper / np.log(2),
+                   result_ln.expected / np.log(2))
+
+    def log10(self):
+        """
+        Compute base-10 logarithm of an AIN instance.
+
+        Returns
+        -------
+        AIN
+            A new AIN instance representing log10(X).
+
+        Raises
+        ------
+        ValueError
+            If lower bound is non-positive.
+
+        Examples
+        --------
+        >>> x = AIN(1, 100, 10)
+        >>> result = x.log10()
+        >>> print(result)
+        [0.0000, 2.0000]_{0.7677}
+        """
+        if self.lower <= 0:
+            raise ValueError("log10 requires positive values")
+
+        # log10(x) = ln(x) / ln(10)
+        result_ln = self.log()
+        return AIN(result_ln.lower / np.log(10),
+                   result_ln.upper / np.log(10),
+                   result_ln.expected / np.log(10))
+
 
     def exp(self):
         """
@@ -2543,4 +2603,6 @@ class AIN:
 
 # Added_function_names = ['sin()', 'cos()', 'tan()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
 
-
+x = AIN(1,10)
+x = x.log10()
+print(x)

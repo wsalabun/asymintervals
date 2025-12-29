@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "asymintervals"
 version = "1.2.0"
+license = "MIT"
 authors = [
     {name = "Wojciech Sałabun", email = "w.salabun@il-pib.pl"},
 ]
@@ -17,7 +18,6 @@ dependencies = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 

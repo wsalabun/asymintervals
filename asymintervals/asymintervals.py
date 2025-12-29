@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.ma.core import max_val
-from scipy.ndimage import histogram
 
 
 class AIN:
@@ -1199,9 +1197,10 @@ class AIN:
 
         return self.lower <= value <= self.upper
 
-    def clamp(self, min_val, max_val):
+    def winsorize(self, min_val, max_val):
         """
-        Clamp (clip) the interval to [min_val, max_val].
+        The winsorize operator returns an AIN whose expected value equals the expectation of the clipped random variable.
+        Clip the interval to [min_val, max_val].
 
         Parameters
         ----------
@@ -1223,21 +1222,26 @@ class AIN:
         Examples
         --------
         >>> x = AIN(-5, 10, 2)
-        >>> result = x.clamp(0, 5)
+        >>> result = x.winsorize(0, 5)
         >>> print(result)
         [0.0000, 5.0000]_{2.2232}
+
+        Notes
+        -----
+        Due to the nonlinear saturation introduced by the clipping operator, the expected value of the winsorized
+        AIN is a non-monotonic function of the characteristic parameter, as directly implied by the LOTUS formulation.
         """
         if not isinstance(min_val, (int, float)) or not isinstance(max_val, (int, float)):
             raise TypeError("min_val and max_val must be numbers")
         if min_val >= max_val:
             raise ValueError("min_val must be less than max_val")
 
-        # Clamp the bounds
+        # Clip the bounds
         new_lower = max(min_val, min(max_val, self.lower))
         new_upper = max(min_val, min(max_val, self.upper))
 
         # Compute expected value
-        # This is complex because clamp is piecewise
+        # This is complex because clip is piecewise
         if self.upper <= min_val:
             # Entire interval below min
             new_expected = min_val
@@ -1248,11 +1252,11 @@ class AIN:
             # Entire interval within bounds
             new_expected = self.expected
         else:
-            # Interval spans clamp boundaries - use LOTUS
+            # Interval spans clip boundaries - use LOTUS
             # We need to integrate piecewise
             total_expected = 0
 
-            # Part 1: values clamped to min_val
+            # Part 1: values cliped to min_val
             if self.lower < min_val:
                 if self.expected < min_val:
                     prob_below = self.alpha * (self.expected - self.lower)
@@ -2538,8 +2542,5 @@ class AIN:
         return normalized_list
 
 # Added_function_names = ['sin()', 'cos()', 'tan()', 'from_samples()', 'samples()', 'to_list()', 'from_list()', 'to_numpy()', 'from_numpy()', 'midpoint()', 'radius()', 'is_symmetric()', 'has_zero()', 'is_zero()', 'is_negative()', 'is_positive()', 'is_degenerate()', 'is_subset_of()', 'overlaps()', 'normalize_ains_list()', 'to_json()', 'from_json()']
-
-
-
 
 

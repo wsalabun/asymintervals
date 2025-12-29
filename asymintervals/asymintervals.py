@@ -83,16 +83,27 @@ class AIN:
         self.expected = expected
 
         if self.lower == self.upper:
+            if self.expected != self.lower:
+                raise ValueError(
+                    f"For lower==upper expected must equal bounds "
+                    f"(got {self.expected:.4f})"
+                )
+
             self.alpha = 1.0
             self.beta = 1.0
             self.asymmetry = 0.0
             self.D2 = 0.0
         else:
+            if not (self.lower + np.finfo(float).eps < self.expected < self.upper - np.finfo(float).eps):
+                raise ValueError(
+                    f"expected must lie strictly inside (lower, upper) "
+                    f"(got {self.lower:.4f}, {self.upper:.4f}, {self.expected:.4f})"
+                )
             self.alpha = (self.upper - self.expected) / ((self.upper - self.lower) * (self.expected - self.lower))
             self.beta = (self.expected - self.lower) / ((self.upper - self.lower) * (self.upper - self.expected))
             self.asymmetry = (self.lower + self.upper - 2 * self.expected) / (self.upper - self.lower)
             self.D2 = self.alpha * (self.expected ** 3 - self.lower ** 3) / 3 + self.beta * (
-                    self.upper ** 3 - self.expected ** 3) / 3 - expected ** 2
+                    self.upper ** 3 - self.expected ** 3) / 3 - self.expected ** 2
 
     def __repr__(self):
         """
@@ -2173,7 +2184,7 @@ class AIN:
         >>> data = [10, 11, 10.5, 11.2, 10.8, 999]
         >>> x = AIN.from_samples(data, method='mad')
         >>> print(x)
-        [9.8500, 11.9500]_{11.9500}
+        [9.8500, 11.9500]_{10.7000}
 
         Notes
         -----
@@ -2237,7 +2248,11 @@ class AIN:
             raise ValueError(f"Unknown method: '{method}'. Use 'minmax', 'percentile', 'iqr', 'std', or 'mad'.")
 
         # Expected value is always the mean of the (possibly clipped) data
-        expected = np.mean(data)
+        if method == 'mad':
+            inliers = data[(data >= lower) & (data <= upper)]
+            expected = np.mean(inliers) if len(inliers) > 0 else np.median(data)
+        else:
+            expected = np.mean(data)
 
         # Ensure bounds are valid
         if lower > upper:

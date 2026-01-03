@@ -1777,15 +1777,15 @@ class AIN:
         res = AIN(new_lower, new_upper, new_expected)
         return res
 
-    def __gt__(self, ain):
+    def __gt__(self, other):
         # Check validity of AINs
         """
         Compute the probability P(X > Y) where X and Y are AIN instances.
 
         Parameters:
         -----------
-        ain : AIN
-            Another AIN instance Y
+        other : AIN, int, float
+            Another AIN instance or a numeric value to compare with.
 
         Returns:
         --------
@@ -1801,10 +1801,12 @@ class AIN:
         >>> b = AIN(4, 14, 9)
         >>> print(f"{a > b:.4f}")  # Compute P(a > b)
         0.1800
-        >>> a > 1.00  # Compare with a non-AIN object
+        >>> a > [1.00]  # Compare with a non-AIN object
         Traceback (most recent call last):
         ...
         TypeError: ain is not an instance of AIN
+        >>> a > 1.00
+        0.9
         """
         def pos_part(x):
             """Positive part function: (x)_+ = max(0, x)"""
@@ -1861,11 +1863,13 @@ class AIN:
             # Default case (should not reach here if all cases are covered)
             raise ValueError(f"Uncovered case: p={p}, q={q}, r={r}, s={s}")
 
-        if not isinstance(ain, AIN):
+        if not isinstance(other, (AIN, int, float)):
             raise TypeError(f"ain is not an instance of AIN")
+        if isinstance(other, (int, float)):
+            return 1 - self.cdf(other)
 
         a, b, c = self.lower, self.upper, self.expected
-        d, e, f = ain.lower, ain.upper, ain.expected
+        d, e, f = other.lower, other.upper, other.expected
 
         # Case 1: Complete separation (X always less than Y)
         if b <= d:
@@ -1878,7 +1882,7 @@ class AIN:
         # Case 3: Overlapping case - compute using explicit formula
         # Compute density parameters
         alpha, beta = self.alpha, self.beta
-        gamma, omega = ain.alpha, ain.beta
+        gamma, omega = other.alpha, other.beta
 
         # Four integral terms from the explicit formula
         I1 = gamma * alpha * integral_r_minus_max_y_s(d, min(f, c), c, a)

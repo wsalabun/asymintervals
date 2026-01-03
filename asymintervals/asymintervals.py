@@ -3304,31 +3304,31 @@ class GraphAIN:
 
 
 
+if __name__=='__main__':
+    A = AIN(0, 10, 2)
+    B = AIN(2, 8, 3)
+    C = AIN(4, 12, 5)
+    D = AIN(6, 14, 11)
+    g = GraphAIN(directed=False, edge_threshold=0.0, dominance_only=True)
+    g.add_node("A", A)
+    g.add_node("B", B)
+    g.add_node("C", C)
+    g.add_node("D", D)
+    _ = g.plot(layout='circular')
 
-A = AIN(0, 10, 2)
-B = AIN(2, 8, 3)
-C = AIN(4, 12, 5)
-D = AIN(6, 14, 11)
-g = GraphAIN(directed=False, edge_threshold=0.0, dominance_only=True)
-g.add_node("A", A)
-g.add_node("B", B)
-g.add_node("C", C)
-g.add_node("D", D)
-_ = g.plot(layout='circular')
 
 
-
-# A = AIN(0, 10, 2)
-B = AIN(2, 8, 3)
-C = AIN(4, 12, 5)
-D = AIN(6, 14, 11)
-g = GraphAIN(directed=True, edge_threshold=0.0, dominance_only=True)
-g.add_node("A", A)
-g.add_node("B", B)
-g.add_node("C", C)
-g.add_node("D", D)
-g.summary()
-_ = g.plot(layout='circular', edge_decimals=3)
+    # A = AIN(0, 10, 2)
+    B = AIN(2, 8, 3)
+    C = AIN(4, 12, 5)
+    D = AIN(6, 14, 11)
+    g = GraphAIN(directed=True, edge_threshold=0.0, dominance_only=True)
+    g.add_node("A", A)
+    g.add_node("B", B)
+    g.add_node("C", C)
+    g.add_node("D", D)
+    g.summary()
+    _ = g.plot(layout='circular', edge_decimals=3)
 
 
 

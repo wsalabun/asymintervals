@@ -3236,6 +3236,8 @@ class GraphAIN:
                     font_size=font_size - 2
                 )
 
+        plt.gca().set_axis_off()
+
         # Save if path provided
         if save_path:
             plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
@@ -3266,7 +3268,6 @@ class GraphAIN:
         >>> float(M[0, 1]) == (g.get_edge_weight("A", "B") or 0.0)
         True
         """
-        import networkx as nx
         return nx.adjacency_matrix(self.graph).todense()
 
     def get_edge_weight(self, node1, node2):

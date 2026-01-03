@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import networkx as nx
 
 class AIN:
     def __init__(self, lower: float, upper: float, expected: float = None):
@@ -2885,7 +2885,510 @@ class AIN:
 
         return normalized_list
 
-a = AIN(0, 10, 5)
-b = AIN(4, 14, 9)
 
-# a>1.0
+class GraphAIN:
+    """
+    A class for creating and visualizing graphs with AIN (Asymmetric Interval Number) nodes.
+
+    Supports both directed and undirected graphs where edges are weighted based on
+    the probability relationships between AIN instances.
+
+    Parameters
+    ----------
+    directed : bool, optional
+        If True, creates a directed graph. If False, creates an undirected graph.
+        Default is False.
+
+    Attributes
+    ----------
+    graph : networkx.Graph or networkx.DiGraph
+        The underlying NetworkX graph object.
+    nodes_data : dict
+        Dictionary mapping node names to their AIN instances.
+    directed : bool
+        Whether the graph is directed or undirected.
+
+    Examples
+    --------
+    Creating an undirected graph:
+    >>> A = AIN(0, 10, 2)
+    >>> B = AIN(2, 8, 3)
+    >>> C = AIN(4, 12, 5)
+    >>> D = AIN(6, 14, 11)
+    >>>
+    >>> g = GraphAIN(directed=False)
+    >>> g.add_node("A", A)
+    >>> g.add_node("B", B)
+    >>> g.add_node("C", C)
+    >>> g.add_node("D", D)
+    >>>
+    >>> g.plot() # doctest: +SKIP
+
+    Creating a directed graph:
+    >>> g_directed = GraphAIN(directed=True)
+    >>> g_directed.add_node("A", A)
+    >>> g_directed.add_node("B", B)
+    >>> _ = g_directed.plot() # doctest: +SKIP
+    """
+
+    def __init__(self, directed=False):
+        """
+        Initialize a GraphAIN instance.
+
+        Parameters
+        ----------
+        directed : bool, optional
+            If True, creates a directed graph. Default is False (undirected).
+
+        Examples
+        --------
+        >>> g = GraphAIN(directed=True)
+        >>> print(g.directed)
+        True
+        >>> g2 = GraphAIN()
+        >>> print(g2.directed)
+        False
+        """
+
+        if not isinstance(directed, bool):
+            raise TypeError("directed must be a boolean")
+
+        self.directed = directed
+        if directed:
+            self.graph = nx.DiGraph()
+        else:
+            self.graph = nx.Graph()
+
+        self.nodes_data = {}
+
+    def add_node(self, name, ain_instance):
+        """
+        Add a node to the graph with an associated AIN instance.
+
+        Parameters
+        ----------
+        name : str
+            The name/label of the node.
+        ain_instance : AIN
+            The AIN instance associated with this node.
+
+        Raises
+        ------
+        TypeError
+            If name is not a string or ain_instance is not an AIN instance.
+        ValueError
+            If a node with this name already exists.
+
+        Examples
+        --------
+        >>> g = GraphAIN()
+        >>> a = AIN(0, 10, 5)
+        >>> g.add_node("A", a)
+        >>> "A" in g.nodes_data
+        True
+        """
+        if not isinstance(name, str):
+            raise TypeError("Node name must be a string")
+        if not isinstance(ain_instance, AIN):
+            raise TypeError("ain_instance must be an AIN instance")
+        if name in self.nodes_data:
+            raise ValueError(f"Node '{name}' already exists in the graph")
+
+        self.graph.add_node(name)
+        self.nodes_data[name] = ain_instance
+
+        for other, other_ain in self.nodes_data.items():
+            if other == name:
+                continue
+
+            if self.directed:
+                self._add_directed_edge(name, other)
+                self._add_directed_edge(other, name)
+            else:
+                self._add_undirected_edge(name, other)
+
+    def _add_directed_edge(self, u, v):
+        p = self.nodes_data[u] > self.nodes_data[v]
+        w = float(f"{p:.4f}")
+        if w > 0:
+            self.graph.add_edge(u, v, weight=w)
+
+    def _add_undirected_edge(self, u, v):
+        p = self.nodes_data[v] > self.nodes_data[u]
+        w = float(f"{4 * p * (1 - p):.4f}")
+        if w > 0:
+            self.graph.add_edge(u, v, weight=w)
+
+    # def add_edge(self, node1, node2, weight_formula='entropy'):
+    #     """
+    #     Add an edge between two nodes with weight calculated from their AIN instances.
+    #
+    #     For undirected graphs, the edge weight is calculated as:
+    #         w = 4 * p * (1 - p)
+    #     where p = P(AIN2 > AIN1), which measures the uncertainty/entropy.
+    #
+    #     For directed graphs, the edge weight is simply:
+    #         w = P(node1 > node2)
+    #
+    #     Parameters
+    #     ----------
+    #     node1 : str
+    #         Name of the first node.
+    #     node2 : str
+    #         Name of the second node.
+    #     weight_formula : str, optional
+    #         Formula to use for weight calculation:
+    #         - 'entropy': 4*p*(1-p) for undirected, p for directed
+    #         - 'probability': just p = P(AIN2 > AIN1)
+    #         Default is 'entropy'.
+    #
+    #     Raises
+    #     ------
+    #     ValueError
+    #         If either node doesn't exist in the graph.
+    #
+    #     Examples
+    #     --------
+    #     >>> g = GraphAIN()
+    #     >>> a = AIN(0, 10, 2)
+    #     >>> b = AIN(2, 8, 3)
+    #     >>> g.add_node("A", a)
+    #     >>> g.add_node("B", b)
+    #     >>> g.add_edge("A", "B")
+    #     """
+    #     if node1 not in self.nodes_data:
+    #         raise ValueError(f"Node '{node1}' not found in graph")
+    #     if node2 not in self.nodes_data:
+    #         raise ValueError(f"Node '{node2}' not found in graph")
+    #
+    #     ain1 = self.nodes_data[node1]
+    #     ain2 = self.nodes_data[node2]
+    #
+    #     # Calculate probability: P(AIN2 > AIN1)
+    #     p = ain1 > ain2
+    #
+    #     # Calculate weight based on formula and graph type
+    #     if weight_formula == 'entropy':
+    #         if self.directed:
+    #             # For directed graphs, use the probability directly
+    #             weight = float(f"{p:.4f}")
+    #         else:
+    #             # For undirected graphs, use entropy formula
+    #             weight = float(f"{4 * p * (1 - p):.4f}")
+    #     elif weight_formula == 'probability':
+    #         weight = float(f"{p:.4f}")
+    #     else:
+    #         raise ValueError(f"Unknown weight_formula: '{weight_formula}'")
+    #
+    #     # Only add edge if weight is positive
+    #     if weight > 0:
+    #         self.graph.add_edge(node1, node2, weight=weight)
+    #
+    # def add_edges_from_list(self, edge_list, weight_formula='entropy'):
+    #     """
+    #     Add multiple edges at once from a list of node pairs.
+    #
+    #     Parameters
+    #     ----------
+    #     edge_list : list of tuples
+    #         List of (node1, node2) tuples.
+    #     weight_formula : str, optional
+    #         Formula to use for weight calculation. Default is 'entropy'.
+    #
+    #     Examples
+    #     --------
+    #     >>> g = GraphAIN()
+    #     >>> a = AIN(0, 10, 2)
+    #     >>> b = AIN(2, 8, 3)
+    #     >>> c = AIN(4, 12, 5)
+    #     >>> g.add_node("A", a)
+    #     >>> g.add_node("B", b)
+    #     >>> g.add_node("C", c)
+    #     >>> edges = [("A", "B"), ("A", "C"), ("B", "C")]
+    #     >>> g.add_edges_from_list(edges)
+    #     """
+    #     for node1, node2 in edge_list:
+    #         self.add_edge(node1, node2, weight_formula=weight_formula)
+
+    def plot(self, figsize=(5, 4), node_size=1000, font_size=12,
+             layout='spring', seed=42, save_path=None, dpi=300):
+        """
+        Visualize the graph using matplotlib and networkx.
+
+        Parameters
+        ----------
+        figsize : tuple, optional
+            Figure size as (width, height). Default is (5, 4).
+        node_size : int, optional
+            Size of the nodes. Default is 1000.
+        font_size : int, optional
+            Font size for node labels. Default is 12.
+        layout : str, optional
+            Layout algorithm: 'spring', 'circular', 'kamada_kawai', 'random'.
+            Default is 'spring'.
+        seed : int, optional
+            Random seed for layout algorithms. Default is 42.
+        save_path : str, optional
+            If provided, saves the figure to this path. Default is None.
+        dpi : int, optional
+            Resolution for saved figure. Default is 300.
+
+        Returns
+        -------
+        matplotlib.figure.Figure
+            The matplotlib figure object.
+
+        Examples
+        --------
+        >>> g = GraphAIN()
+        >>> # ... add nodes ...
+        >>> _ = g.plot(layout='circular', save_path='my_graph.pdf')  # doctest: +SKIP
+        """
+        import networkx as nx
+        import matplotlib.pyplot as plt
+
+        if len(self.graph.nodes()) == 0:
+            raise ValueError("Graph has no nodes to plot")
+
+        plt.figure(figsize=figsize)
+
+        # Choose layout
+        if layout == 'spring':
+            pos = nx.spring_layout(self.graph, seed=seed)
+        elif layout == 'circular':
+            pos = nx.circular_layout(self.graph)
+        elif layout == 'kamada_kawai':
+            pos = nx.kamada_kawai_layout(self.graph)
+        elif layout == 'random':
+            pos = nx.random_layout(self.graph, seed=seed)
+        else:
+            raise ValueError(f"Unknown layout: '{layout}'")
+
+        # # Draw nodes and edges
+        # nx.draw(self.graph, pos, with_labels=True,
+        #         node_size=node_size, font_size=font_size,
+        #         node_color='lightblue', edge_color='gray',
+        #         arrows=self.directed, arrowsize=20)
+        #
+        # # Draw edge labels with weights
+        # edge_labels = nx.get_edge_attributes(self.graph, 'weight')
+        # nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
+
+        # Draw nodes
+        nx.draw_networkx_nodes(
+            self.graph, pos,
+            node_size=node_size,
+            node_color='lightblue'
+        )
+
+        # Draw labels
+        nx.draw_networkx_labels(
+            self.graph, pos,
+            font_size=font_size
+        )
+
+        if self.directed:
+            # Draw directed edges with curvature for bidirectional pairs
+            for (u, v) in self.graph.edges():
+                rad = 0.12 if self.graph.has_edge(v, u) else 0.0
+                nx.draw_networkx_edges(
+                    self.graph, pos,
+                    edgelist=[(u, v)],
+                    arrows=True,
+                    arrowstyle="-|>",
+                    arrowsize=20,
+                    edge_color='gray',
+                    connectionstyle=f"arc3,rad={rad}"
+                )
+        else:
+            # Draw undirected edges
+            nx.draw_networkx_edges(
+                self.graph, pos,
+                edge_color='gray'
+            )
+
+        # Draw edge labels (weights)
+        edge_labels = nx.get_edge_attributes(self.graph, 'weight')
+        if edge_labels:
+            if self.directed:
+                # Place labels slightly off the edge to avoid overlap
+                for (u, v), w in edge_labels.items():
+                    x1, y1 = pos[u]
+                    x2, y2 = pos[v]
+
+                    xm = 0.5 * (x1 + x2)
+                    ym = 0.5 * (y1 + y2)
+
+                    rad = 0.12 if self.graph.has_edge(v, u) else 0.0
+                    dx = (y2 - y1) * rad * 0.7
+                    dy = -(x2 - x1) * rad * 0.7
+
+                    plt.text(
+                        xm + dx, ym + dy,
+                        f"{w:.2f}",
+                        fontsize=font_size - 2,
+                        bbox=dict(boxstyle="round,pad=0.2", fc="white", alpha=0.9)
+                    )
+            else:
+                nx.draw_networkx_edge_labels(
+                    self.graph, pos,
+                    edge_labels=edge_labels,
+                    font_size=font_size - 2
+                )
+
+        # Save if path provided
+        if save_path:
+            plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+
+        plt.show()
+
+        return plt.gcf()
+
+    def get_adjacency_matrix(self):
+        """
+        Get the adjacency matrix of the graph.
+
+        Returns
+        -------
+        numpy.ndarray
+            The adjacency matrix with edge weights.
+
+        Examples
+        --------
+        >>> g = GraphAIN(directed=True)
+        >>> a = AIN(0, 10, 2)
+        >>> b = AIN(2, 8, 3)
+        >>> g.add_node("A", a)
+        >>> g.add_node("B", b)
+        >>> M = g.get_adjacency_matrix()
+        >>> M.shape
+        (2, 2)
+        >>> float(M[0, 1]) == (g.get_edge_weight("A", "B") or 0.0)
+        True
+        """
+        import networkx as nx
+        return nx.adjacency_matrix(self.graph).todense()
+
+    def get_edge_weight(self, node1, node2):
+        """
+        Get the weight of an edge between two nodes.
+
+        Parameters
+        ----------
+        node1 : str
+            Name of the first node.
+        node2 : str
+            Name of the second node.
+
+        Returns
+        -------
+        float or None
+            The edge weight, or None if no edge exists.
+
+        Examples
+        --------
+        >>> g = GraphAIN()
+        >>> # ... add nodes and edges ...
+        >>> weight = g.get_edge_weight("A", "B")
+        """
+        if self.graph.has_edge(node1, node2):
+            return self.graph[node1][node2]['weight']
+        return None
+
+    def get_node_degree(self, node):
+        """
+        Get the degree of a node.
+
+        Parameters
+        ----------
+        node : str
+            Name of the node.
+
+        Returns
+        -------
+        int
+            The degree of the node.
+
+        Examples
+        --------
+        >>> g = GraphAIN()
+        >>> # ... add nodes and edges ...
+        >>> degree = g.get_node_degree("A")
+        """
+        return self.graph.degree(node)
+
+    def summary(self):
+        """
+        Print a summary of the graph.
+
+        Examples
+        --------
+        >>> g = GraphAIN(directed=True)
+        >>> a = AIN(0, 10, 2)
+        >>> b = AIN(2, 8, 3)
+        >>> g.add_node("A", a)
+        >>> g.add_node("B", b)
+        >>> g.summary()
+        ==================================================
+        Graph Type: Directed
+        Number of Nodes: 2
+        Number of Edges: 2
+        ==================================================
+        Nodes:
+          A: [0.0000, 10.0000]_{2.0000}
+          B: [2.0000, 8.0000]_{3.0000}
+        ==================================================
+        Edges (with weights):
+          A -> B: 0.1750
+          B -> A: 0.8250
+        ==================================================
+        """
+        print("=" * 50)
+        print(f"Graph Type: {'Directed' if self.directed else 'Undirected'}")
+        print(f"Number of Nodes: {self.graph.number_of_nodes()}")
+        print(f"Number of Edges: {self.graph.number_of_edges()}")
+        print("=" * 50)
+        print("Nodes:")
+        for node, ain in self.nodes_data.items():
+            print(f"  {node}: {ain}")
+        print("=" * 50)
+        print("Edges (with weights):")
+        for u, v, data in self.graph.edges(data=True):
+            print(f"  {u} -> {v}: {data['weight']:.4f}")
+        print("=" * 50)
+
+    def __repr__(self):
+        """String representation of the GraphAIN instance."""
+        graph_type = "Directed" if self.directed else "Undirected"
+        return (f"GraphAIN({graph_type}, "
+                f"nodes={self.graph.number_of_nodes()}, "
+                f"edges={self.graph.number_of_edges()})")
+
+
+
+
+
+A = AIN(0, 10, 2)
+B = AIN(2, 8, 3)
+C = AIN(4, 12, 5)
+D = AIN(6, 14, 11)
+g = GraphAIN(directed=True)
+g.add_node("A", A)
+g.add_node("B", B)
+g.add_node("C", C)
+g.add_node("D", D)
+g.summary()
+_ = g.plot(layout='circular')
+
+
+
+A = AIN(0, 10, 2)
+B = AIN(2, 8, 3)
+C = AIN(4, 12, 5)
+D = AIN(6, 14, 11)
+g = GraphAIN(directed=False)
+g.add_node("A", A)
+g.add_node("B", B)
+g.add_node("C", C)
+g.add_node("D", D)
+_ = g.plot()

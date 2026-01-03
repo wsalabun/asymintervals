@@ -3019,97 +3019,6 @@ class GraphAIN:
         if w > 0:
             self.graph.add_edge(u, v, weight=w)
 
-    # def add_edge(self, node1, node2, weight_formula='entropy'):
-    #     """
-    #     Add an edge between two nodes with weight calculated from their AIN instances.
-    #
-    #     For undirected graphs, the edge weight is calculated as:
-    #         w = 4 * p * (1 - p)
-    #     where p = P(AIN2 > AIN1), which measures the uncertainty/entropy.
-    #
-    #     For directed graphs, the edge weight is simply:
-    #         w = P(node1 > node2)
-    #
-    #     Parameters
-    #     ----------
-    #     node1 : str
-    #         Name of the first node.
-    #     node2 : str
-    #         Name of the second node.
-    #     weight_formula : str, optional
-    #         Formula to use for weight calculation:
-    #         - 'entropy': 4*p*(1-p) for undirected, p for directed
-    #         - 'probability': just p = P(AIN2 > AIN1)
-    #         Default is 'entropy'.
-    #
-    #     Raises
-    #     ------
-    #     ValueError
-    #         If either node doesn't exist in the graph.
-    #
-    #     Examples
-    #     --------
-    #     >>> g = GraphAIN()
-    #     >>> a = AIN(0, 10, 2)
-    #     >>> b = AIN(2, 8, 3)
-    #     >>> g.add_node("A", a)
-    #     >>> g.add_node("B", b)
-    #     >>> g.add_edge("A", "B")
-    #     """
-    #     if node1 not in self.nodes_data:
-    #         raise ValueError(f"Node '{node1}' not found in graph")
-    #     if node2 not in self.nodes_data:
-    #         raise ValueError(f"Node '{node2}' not found in graph")
-    #
-    #     ain1 = self.nodes_data[node1]
-    #     ain2 = self.nodes_data[node2]
-    #
-    #     # Calculate probability: P(AIN2 > AIN1)
-    #     p = ain1 > ain2
-    #
-    #     # Calculate weight based on formula and graph type
-    #     if weight_formula == 'entropy':
-    #         if self.directed:
-    #             # For directed graphs, use the probability directly
-    #             weight = float(f"{p:.4f}")
-    #         else:
-    #             # For undirected graphs, use entropy formula
-    #             weight = float(f"{4 * p * (1 - p):.4f}")
-    #     elif weight_formula == 'probability':
-    #         weight = float(f"{p:.4f}")
-    #     else:
-    #         raise ValueError(f"Unknown weight_formula: '{weight_formula}'")
-    #
-    #     # Only add edge if weight is positive
-    #     if weight > 0:
-    #         self.graph.add_edge(node1, node2, weight=weight)
-    #
-    # def add_edges_from_list(self, edge_list, weight_formula='entropy'):
-    #     """
-    #     Add multiple edges at once from a list of node pairs.
-    #
-    #     Parameters
-    #     ----------
-    #     edge_list : list of tuples
-    #         List of (node1, node2) tuples.
-    #     weight_formula : str, optional
-    #         Formula to use for weight calculation. Default is 'entropy'.
-    #
-    #     Examples
-    #     --------
-    #     >>> g = GraphAIN()
-    #     >>> a = AIN(0, 10, 2)
-    #     >>> b = AIN(2, 8, 3)
-    #     >>> c = AIN(4, 12, 5)
-    #     >>> g.add_node("A", a)
-    #     >>> g.add_node("B", b)
-    #     >>> g.add_node("C", c)
-    #     >>> edges = [("A", "B"), ("A", "C"), ("B", "C")]
-    #     >>> g.add_edges_from_list(edges)
-    #     """
-    #     for node1, node2 in edge_list:
-    #         self.add_edge(node1, node2, weight_formula=weight_formula)
-
     def plot(self, figsize=(5, 4), node_size=1000, font_size=12,
              layout='spring', seed=42, save_path=None, dpi=300, edge_decimals = 2):
         """
@@ -3150,7 +3059,6 @@ class GraphAIN:
         if len(self.graph.nodes()) == 0:
             raise ValueError("Graph has no nodes to plot")
 
-        # plt.figure(figsize=figsize)
         fig, ax = plt.subplots(figsize=figsize)
 
         # Choose layout
@@ -3164,16 +3072,6 @@ class GraphAIN:
             pos = nx.random_layout(self.graph, seed=seed)
         else:
             raise ValueError(f"Unknown layout: '{layout}'")
-
-        # # Draw nodes and edges
-        # nx.draw(self.graph, pos, with_labels=True,
-        #         node_size=node_size, font_size=font_size,
-        #         node_color='lightblue', edge_color='gray',
-        #         arrows=self.directed, arrowsize=20)
-        #
-        # # Draw edge labels with weights
-        # edge_labels = nx.get_edge_attributes(self.graph, 'weight')
-        # nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
 
         # Draw nodes
         nx.draw_networkx_nodes(

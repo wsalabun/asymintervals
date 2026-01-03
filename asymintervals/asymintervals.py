@@ -3111,7 +3111,7 @@ class GraphAIN:
     #         self.add_edge(node1, node2, weight_formula=weight_formula)
 
     def plot(self, figsize=(5, 4), node_size=1000, font_size=12,
-             layout='spring', seed=42, save_path=None, dpi=300):
+             layout='spring', seed=42, save_path=None, dpi=300, edge_decimals = 2):
         """
         Visualize the graph using matplotlib and networkx.
 
@@ -3150,7 +3150,8 @@ class GraphAIN:
         if len(self.graph.nodes()) == 0:
             raise ValueError("Graph has no nodes to plot")
 
-        plt.figure(figsize=figsize)
+        # plt.figure(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize)
 
         # Choose layout
         if layout == 'spring':
@@ -3225,7 +3226,7 @@ class GraphAIN:
 
                     plt.text(
                         xm + dx, ym + dy,
-                        f"{w:.2f}",
+                        f"{w:.{edge_decimals}f}",
                         fontsize=font_size - 2,
                         bbox=dict(boxstyle="round,pad=0.2", fc="white", alpha=0.9)
                     )
@@ -3243,8 +3244,8 @@ class GraphAIN:
             plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
 
         plt.show()
-
-        return plt.gcf()
+        plt.close(fig)
+        return fig
 
     def get_adjacency_matrix(self):
         """
@@ -3368,6 +3369,18 @@ class GraphAIN:
 
 
 
+A = AIN(0, 10, 2)
+B = AIN(2, 8, 3)
+C = AIN(4, 12, 5)
+D = AIN(6, 14, 11)
+g = GraphAIN(directed=False)
+g.add_node("A", A)
+g.add_node("B", B)
+g.add_node("C", C)
+g.add_node("D", D)
+_ = g.plot()
+
+
 
 A = AIN(0, 10, 2)
 B = AIN(2, 8, 3)
@@ -3379,17 +3392,8 @@ g.add_node("B", B)
 g.add_node("C", C)
 g.add_node("D", D)
 g.summary()
-_ = g.plot(layout='circular')
+_ = g.plot(layout='circular', edge_decimals=3)
 
 
 
-A = AIN(0, 10, 2)
-B = AIN(2, 8, 3)
-C = AIN(4, 12, 5)
-D = AIN(6, 14, 11)
-g = GraphAIN(directed=False)
-g.add_node("A", A)
-g.add_node("B", B)
-g.add_node("C", C)
-g.add_node("D", D)
-_ = g.plot()
+

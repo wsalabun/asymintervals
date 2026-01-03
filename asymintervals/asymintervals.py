@@ -1777,6 +1777,120 @@ class AIN:
         res = AIN(new_lower, new_upper, new_expected)
         return res
 
+    def __gt__(self, ain):
+        # Check validity of AINs
+        """
+        Compute the probability P(X > Y) where X and Y are AIN instances.
+
+        Parameters:
+        -----------
+        ain : AIN
+            Another AIN instance Y
+
+        Returns:
+        --------
+        float
+        Probability P(X > Y)
+        Raises:
+        -------
+        TypeError
+            If `ain` is not an instance of `AIN`.
+        Examples:
+        ---------
+        >>> a = AIN(0, 10, 5)
+        >>> b = AIN(4, 14, 9)
+        >>> print(f"{a > b:.4f}")  # Compute P(a > b)
+        0.1800
+        >>> a > 1.00  # Compare with a non-AIN object
+        Traceback (most recent call last):
+        ...
+        TypeError: ain is not an instance of AIN
+        """
+        def pos_part(x):
+            """Positive part function: (x)_+ = max(0, x)"""
+            return max(0, x)
+
+        def integral_r_minus_max_y_s(p, q, r, s):
+            """
+            Compute the integral: (r - max(y, s))_+ dy
+
+            Parameters:
+            -----------
+            p : float
+                Lower integration limit
+            q : float
+                Upper integration limit
+            r : float
+                Constant in the integrand
+            s : float
+                Threshold in max(y, s)
+
+            Returns:
+            --------
+            float
+                Value of the integral
+            """
+            # Case 1: r <= p or p >= q
+            if r <= p or p >= q:
+                return 0.0
+
+            # Case 2: s <= p < q <= r
+            if s <= p < q <= r:
+                return (r - p) * (q - p) - 0.5 * (q - p) ** 2
+
+            # Case 3: s <= p < r < q
+            if s <= p < r < q:
+                return 0.5 * (r - p) ** 2
+
+            # Case 4: s >= q
+            if s >= q:
+                return pos_part(r - s) * (q - p)
+
+            # Case 5: p < s < q (need to compute K)
+            if p < s < q:
+                # Compute K based on subcases
+                if r >= q:
+                    K = (r - s) * (q - s) - 0.5 * (q - s) ** 2
+                elif s < r < q:
+                    K = 0.5 * (r - s) ** 2
+                else:  # r <= s
+                    K = 0.0
+
+                return pos_part(r - s) * (s - p) + K
+
+            # Default case (should not reach here if all cases are covered)
+            raise ValueError(f"Uncovered case: p={p}, q={q}, r={r}, s={s}")
+
+        if not isinstance(ain, AIN):
+            raise TypeError(f"ain is not an instance of AIN")
+
+        a, b, c = self.lower, self.upper, self.expected
+        d, e, f = ain.lower, ain.upper, ain.expected
+
+        # Case 1: Complete separation (X always less than Y)
+        if b <= d:
+            return 0.0
+
+        # Case 2: Complete separation (X always greater than Y)
+        if e <= a:
+            return 1.0
+
+        # Case 3: Overlapping case - compute using explicit formula
+        # Compute density parameters
+        alpha, beta = self.alpha, self.beta
+        gamma, omega = ain.alpha, ain.beta
+
+        # Four integral terms from the explicit formula
+        I1 = gamma * alpha * integral_r_minus_max_y_s(d, min(f, c), c, a)
+        I2 = gamma * beta * integral_r_minus_max_y_s(d, min(f, b), b, c)
+        I3 = omega * alpha * integral_r_minus_max_y_s(f, min(e, c), c, a)
+        I4 = omega * beta * integral_r_minus_max_y_s(f, min(e, b), b, c)
+
+        return I1 + I2 + I3 + I4
+
+
+
+
     def log(self):
         """
         Computes the natural logarithm (ln(x)) of the current `AIN` instance.
@@ -2644,4 +2758,7 @@ class AIN:
 
         return normalized_list
 
+a = AIN(0, 10, 5)
+b = AIN(4, 14, 9)
 
+# a>1.0

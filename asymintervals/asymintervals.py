@@ -2931,7 +2931,7 @@ class GraphAIN:
     >>> _ = g_directed.plot() # doctest: +SKIP
     """
 
-    def __init__(self, directed=False):
+    def __init__(self, directed=False, edge_threshold=0.0):
         """
         Initialize a GraphAIN instance.
 
@@ -2939,6 +2939,10 @@ class GraphAIN:
         ----------
         directed : bool, optional
             If True, creates a directed graph. Default is False (undirected).
+        edge_threshold : float, optional
+            Minimum edge weight required to add an edge.
+            Edges with weight <= edge_threshold are ignored.
+            Default is 0.0.
 
         Examples
         --------
@@ -2954,6 +2958,7 @@ class GraphAIN:
             raise TypeError("directed must be a boolean")
 
         self.directed = directed
+        self.edge_threshold = float(edge_threshold)
         if directed:
             self.graph = nx.DiGraph()
         else:
@@ -3010,13 +3015,13 @@ class GraphAIN:
     def _add_directed_edge(self, u, v):
         p = self.nodes_data[u] > self.nodes_data[v]
         w = float(f"{p:.4f}")
-        if w > 0:
+        if w > self.edge_threshold:
             self.graph.add_edge(u, v, weight=w)
 
     def _add_undirected_edge(self, u, v):
         p = self.nodes_data[v] > self.nodes_data[u]
         w = float(f"{4 * p * (1 - p):.4f}")
-        if w > 0:
+        if w > self.edge_threshold:
             self.graph.add_edge(u, v, weight=w)
 
     def plot(self, figsize=(5, 4), node_size=1000, font_size=12,
@@ -3271,12 +3276,12 @@ A = AIN(0, 10, 2)
 B = AIN(2, 8, 3)
 C = AIN(4, 12, 5)
 D = AIN(6, 14, 11)
-g = GraphAIN(directed=False)
+g = GraphAIN(directed=False, edge_threshold=0.1)
 g.add_node("A", A)
 g.add_node("B", B)
 g.add_node("C", C)
 g.add_node("D", D)
-_ = g.plot()
+_ = g.plot(layout='circular')
 
 
 
@@ -3284,7 +3289,7 @@ _ = g.plot()
 B = AIN(2, 8, 3)
 C = AIN(4, 12, 5)
 D = AIN(6, 14, 11)
-g = GraphAIN(directed=True)
+g = GraphAIN(directed=True, edge_threshold=0.1)
 g.add_node("A", A)
 g.add_node("B", B)
 g.add_node("C", C)

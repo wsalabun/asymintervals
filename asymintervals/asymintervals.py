@@ -1804,7 +1804,7 @@ class AIN:
         >>> a > [1.00]  # Compare with a non-AIN object
         Traceback (most recent call last):
         ...
-        TypeError: ain is not an instance of AIN
+        TypeError: other is not an instance of AIN, int or float
         >>> a > 1.00
         0.9
         """
@@ -1864,7 +1864,7 @@ class AIN:
             raise ValueError(f"Uncovered case: p={p}, q={q}, r={r}, s={s}")
 
         if not isinstance(other, (AIN, int, float)):
-            raise TypeError(f"ain is not an instance of AIN")
+            raise TypeError(f"other is not an instance of AIN, int or float")
         if isinstance(other, (int, float)):
             return 1 - self.cdf(other)
 
@@ -1892,7 +1892,130 @@ class AIN:
 
         return I1 + I2 + I3 + I4
 
+    def __ge__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is greater than or equal to another object, which can be an AIN instance, a float, or an int.
 
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is greater than or equal to `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the probability is computed as `1 - self.cdf(other) + self == other`, where:
+            - `1 - self.cdf(other)` represents the probability that this AIN instance is greater than `other`.
+            - `self == other` adds the probability of equality.
+        - If `other` is an AIN instance, the probability is calculated by combining the results of `self > other` and `self == other`, yielding the total probability that this AIN instance is greater than or equal to the `other` AIN instance.
+
+        Examples
+        --------
+        >>> a = AIN(2, 10, 5)
+        >>> b = AIN(4, 12, 6)
+        >>> print(f"{a >= b:.5f}")
+        0.33125
+
+        >>> a = AIN(3, 7, 5)
+        >>> a >= 6
+        0.25
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other must be an instance of AIN, float, or int")
+        return max(self > other, self == other)
+
+    def __lt__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is less than another object, which can be an AIN instance, a float, or an int.
+
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is less than `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the method uses `self.cdf(other)`, which returns the cumulative distribution function (CDF) value representing the probability that this AIN instance is less than `other`.
+        - If `other` is an AIN instance, the method calculates the probability by checking if `other > self`, which should be defined to return the probability that `other` is greater than `self`.
+
+        Examples
+        --------
+        >>> a = AIN(1, 8, 4)
+        >>> b = AIN(5, 12, 6)
+        >>> a < b
+        0.7653061224489796
+
+        >>> a = AIN(3, 7, 5)
+        >>> a < 6
+        0.75
+        """
+        if not isinstance(other, (int, float, AIN)):
+            raise TypeError('other must be an integer, float or AIN')
+        if isinstance(other, (int, float)):
+            return self.cdf(other)
+        if other.is_degenerate():
+            return self.cdf(other.expected)
+        return other > self
+
+    def __le__(self, other):
+        """
+        Calculates the probability (between 0 and 1) that this AIN instance is less than or equal to another object, which can be an AIN instance, a float, or an int.
+
+        Parameters
+        ----------
+        other : AIN, float, or int
+            The object to compare with this AIN instance.
+
+        Returns
+        -------
+        float
+            A probability between 0 and 1 representing the likelihood that this AIN instance is less than or equal to `other`.
+
+        Raises
+        ------
+        TypeError
+            If `other` is not an instance of AIN, float, or int.
+
+        Notes
+        -----
+        - If `other` is a float or int, the probability is calculated using `self.cdf(other) + self == other`, where:
+            - `self.cdf(other)` represents the probability that this AIN instance is less than `other`.
+            - `self == other` adds the probability of equality.
+        - If `other` is an AIN instance, the probability is computed by combining the results of `self < other` and `self == other`, representing the total likelihood that this AIN instance is less than or equal to the `other` AIN instance.
+
+        Examples
+        --------
+        >>> a = AIN(1, 8, 4)
+        >>> b = AIN(5, 12, 6)
+        >>> print(f"{a <= b:.4f}")
+        0.7653
+
+        >>> a = AIN(3, 7, 5)
+        >>> a <= 6
+        0.75
+        """
+        if not isinstance(other, (AIN, float, int)):
+            raise TypeError("other must be an instance of AIN, float, or int")
+        return max(self < other, self == other)
 
 
     def log(self):

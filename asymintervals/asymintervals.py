@@ -2931,7 +2931,7 @@ class GraphAIN:
     >>> _ = g_directed.plot() # doctest: +SKIP
     """
 
-    def __init__(self, directed=False, edge_threshold=0.0):
+    def __init__(self, directed=False, edge_threshold=0.0, dominance_only=False):
         """
         Initialize a GraphAIN instance.
 
@@ -2943,6 +2943,9 @@ class GraphAIN:
             Minimum edge weight required to add an edge.
             Edges with weight <= edge_threshold are ignored.
             Default is 0.0.
+        dominance_only: bool, optional
+            If True (directed graphs only), for each pair of nodes (A, B)
+            only the direction with the larger weight is added
 
         Examples
         --------
@@ -2956,9 +2959,16 @@ class GraphAIN:
 
         if not isinstance(directed, bool):
             raise TypeError("directed must be a boolean")
+        if not isinstance(dominance_only, bool):
+            raise TypeError("dominance_only must be a boolean")
+        if not isinstance(edge_threshold, float):
+            raise TypeError("edge_threshold must be a float")
+        if edge_threshold < 0.0 or edge_threshold > 1.0:
+            raise ValueError("edge_threshold must be between 0.0 and 1.0")
 
         self.directed = directed
-        self.edge_threshold = float(edge_threshold)
+        self.edge_threshold = edge_threshold
+        self.dominance_only = dominance_only
         if directed:
             self.graph = nx.DiGraph()
         else:
@@ -3007,10 +3017,31 @@ class GraphAIN:
                 continue
 
             if self.directed:
-                self._add_directed_edge(name, other)
-                self._add_directed_edge(other, name)
+                if self.dominance_only:
+                    self._add_directed_edge_max(name, other)
+
+                else:
+                    self._add_directed_edge(name, other)
+                    self._add_directed_edge(other, name)
             else:
                 self._add_undirected_edge(name, other)
+
+    def _add_directed_edge_max(self, u, v):
+        p_uv = self.nodes_data[u] > self.nodes_data[v]
+        p_vu = self.nodes_data[v] > self.nodes_data[u]
+
+        if p_uv > p_vu:
+            weight = p_uv
+            src, dst = u, v
+        elif p_vu > p_uv:
+            weight = p_vu
+            src, dst = v, u
+        else:
+            src, dst = (u, v) if u < v else (v, u)
+            weight = p_uv  # == p_vu
+
+        if weight > self.edge_threshold:
+            self.graph.add_edge(src, dst, weight=weight)
 
     def _add_directed_edge(self, u, v):
         p = self.nodes_data[u] > self.nodes_data[v]
@@ -3102,7 +3133,9 @@ class GraphAIN:
                     arrowstyle="-|>",
                     arrowsize=20,
                     edge_color='gray',
-                    connectionstyle=f"arc3,rad={rad}"
+                    connectionstyle=f"arc3,rad={rad}",
+                    min_source_margin=15,
+                    min_target_margin=15
                 )
         else:
             # Draw undirected edges
@@ -3276,7 +3309,7 @@ A = AIN(0, 10, 2)
 B = AIN(2, 8, 3)
 C = AIN(4, 12, 5)
 D = AIN(6, 14, 11)
-g = GraphAIN(directed=False, edge_threshold=0.1)
+g = GraphAIN(directed=False, edge_threshold=0.0, dominance_only=True)
 g.add_node("A", A)
 g.add_node("B", B)
 g.add_node("C", C)
@@ -3289,7 +3322,7 @@ _ = g.plot(layout='circular')
 B = AIN(2, 8, 3)
 C = AIN(4, 12, 5)
 D = AIN(6, 14, 11)
-g = GraphAIN(directed=True, edge_threshold=0.1)
+g = GraphAIN(directed=True, edge_threshold=0.0, dominance_only=True)
 g.add_node("A", A)
 g.add_node("B", B)
 g.add_node("C", C)

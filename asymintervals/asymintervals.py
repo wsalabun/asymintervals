@@ -3328,7 +3328,7 @@ if __name__=='__main__':
     g.add_node("C", C)
     g.add_node("D", D)
     g.summary()
-    _ = g.plot(layout='circular', edge_decimals=3)
+    _ = g.plot(layout='spring', edge_decimals=3)
 
 
 

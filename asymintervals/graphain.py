@@ -84,6 +84,8 @@ class GraphAIN:
             raise TypeError("edge_threshold must be a float")
         if edge_threshold < 0.0 or edge_threshold > 1.0:
             raise ValueError("edge_threshold must be between 0.0 and 1.0")
+        if dominance_only and not directed:
+            raise ValueError("dominance_only can only be True for directed graphs")
 
         self.directed = directed
         self.edge_threshold = edge_threshold
@@ -208,8 +210,6 @@ class GraphAIN:
         >>> # ... add nodes ...
         >>> _ = g.plot(layout='circular', save_path='my_graph.pdf')  # doctest: +SKIP
         """
-        import networkx as nx
-        import matplotlib.pyplot as plt
 
         if len(self.graph.nodes()) == 0:
             raise ValueError("Graph has no nodes to plot")

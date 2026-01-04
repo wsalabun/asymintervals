@@ -1,2 +1,4 @@
-from asymintervals.asymintervals import AIN
+from .ain import AIN
+from .graphain import GraphAIN
 
+__all__ = ["AIN", "GraphAIN"]

@@ -59,7 +59,7 @@ class GraphAIN:
         directed : bool, optional
             If True, creates a directed graph. Default is False (undirected).
         edge_threshold : float, optional
-            Minimum edge weight required to add an edge.
+            Minimum edge weight required to add an edge (epsilon).
             Edges with weight <= edge_threshold are ignored.
             Default is 0.0.
         dominance_only: bool, optional
@@ -421,28 +421,171 @@ class GraphAIN:
                 f"nodes={self.graph.number_of_nodes()}, "
                 f"edges={self.graph.number_of_edges()})")
 
+    def average_uncertainty(self):
+        """
+        Calculate the average graph uncertainty for an undirected graph.
+
+        For an undirected UAIG (Uncertain Asymmetric Interval Graph) with n vertices,
+        the average uncertainty measures the overall uncertainty across all node pairs.
+
+        Returns
+        -------
+        float
+            The average graph uncertainty value in range [0, 1].
+            Returns 0.0 for graphs with fewer than 2 nodes.
+
+        Raises
+        ------
+        ValueError
+            If called on a directed graph (this metric is only defined for undirected graphs).
+
+        Examples
+        --------
+        >>> A = AIN(0, 10, 2)
+        >>> B = AIN(2, 8, 3)
+        >>> C = AIN(4, 12, 5)
+        >>> g = GraphAIN(directed=False)
+        >>> g.add_node("A", A)
+        >>> g.add_node("B", B)
+        >>> g.add_node("C", C)
+        >>> uncertainty = g.average_uncertainty()
+        >>> print(f"Average uncertainty: {uncertainty:.4f}")
+        Average uncertainty: 0.4643
+        """
+        if self.directed:
+            raise ValueError("Average uncertainty is only defined for undirected graphs")
+
+        n = self.graph.number_of_nodes()
+
+        # Edge case: graphs with 0 or 1 node have no uncertainty
+        if n < 2:
+            return 0.0
+
+        # Sum all edge weights
+        total_weight = 0.0
+        node_names = list(self.nodes_data.keys())
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                node_i = node_names[i]
+                node_j = node_names[j]
+
+                # Calculate weight even if edge doesn't exist in graph
+                # (it might be filtered by edge_threshold)
+                ain_i = self.nodes_data[node_i]
+                ain_j = self.nodes_data[node_j]
+                p = ain_j > ain_i
+                weight = 4 * p * (1 - p)
+
+                total_weight += weight
+
+        # Apply the normalization factor
+        avg_uncertainty = (2 * total_weight) / (n * (n - 1))
+
+        return avg_uncertainty
+
+
+    def graph_entropy(self):
+        """
+        Calculate the graph entropy for an undirected graph.
+
+        For an undirected UAIG (Uncertain Asymmetric Interval Graph) with n vertices,
+        the graph entropy measures the overall information-theoretic uncertainty
+        across all node pairs using the binary entropy function.
+
+        Returns
+        -------
+        float
+            The graph entropy value in range [0, 1].
+            Returns 0.0 for graphs with fewer than 2 nodes.
+
+        Raises
+        ------
+        ValueError
+            If called on a directed graph (this metric is only defined for undirected graphs).
+
+        Examples
+        --------
+        >>> A = AIN(0, 10, 2)
+        >>> B = AIN(2, 8, 3)
+        >>> C = AIN(4, 12, 5)
+        >>> g = GraphAIN(directed=False)
+        >>> g.add_node("A", A)
+        >>> g.add_node("B", B)
+        >>> g.add_node("C", C)
+        >>> entropy = g.graph_entropy()
+        >>> print(f"Graph entropy: {entropy:.4f}")
+        Graph entropy: 0.5663
+        """
+        import numpy as np
+
+        if self.directed:
+            raise ValueError("Graph entropy is only defined for undirected graphs")
+
+        n = self.graph.number_of_nodes()
+
+        # Edge case: graphs with 0 or 1 node have no entropy
+        if n < 2:
+            return 0.0
+
+        def binary_entropy(p):
+            """
+            Binary entropy function h(p) = -(p*log2(p) + (1-p)*log2(1-p))
+            with the convention that 0*log2(0) = 0.
+            """
+            # Handle edge cases where p is 0 or 1
+            if p <= 0.0 or p >= 1.0:
+                return 0.0
+
+            # Calculate binary entropy
+            return -(p * np.log2(p) + (1 - p) * np.log2(1 - p))
+
+        # Sum binary entropy for all pairs
+        total_entropy = 0.0
+        node_names = list(self.nodes_data.keys())
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                node_i = node_names[i]
+                node_j = node_names[j]
+
+                # Calculate p_ij = P(X_j > X_i)
+                ain_i = self.nodes_data[node_i]
+                ain_j = self.nodes_data[node_j]
+                p_ij = ain_j > ain_i
+
+                # Add binary entropy of this probability
+                total_entropy += binary_entropy(p_ij)
+
+        # Apply the normalization factor
+        graph_ent = (2 * total_entropy) / (n * (n - 1))
+
+        return graph_ent
+
+
 if __name__=='__main__':
     A = AIN(0, 10, 2)
     B = AIN(2, 8, 3)
     C = AIN(4, 12, 5)
-    D = AIN(6, 14, 11)
-    g = GraphAIN(directed=False, edge_threshold=0.0, dominance_only=True)
+    # D = AIN(6, 14, 11)
+    g = GraphAIN(directed=False, edge_threshold=0.0)
     g.add_node("A", A)
     g.add_node("B", B)
     g.add_node("C", C)
-    g.add_node("D", D)
+    # g.add_node("D", D)
     _ = g.plot(layout='circular')
+    print(f"Average uncertainty: {g.graph_entropy():.4f}")
 
 
 
-    # A = AIN(0, 10, 2)
-    B = AIN(2, 8, 3)
-    C = AIN(4, 12, 5)
-    D = AIN(6, 14, 11)
-    g = GraphAIN(directed=True, edge_threshold=0.0, dominance_only=True)
-    g.add_node("A", A)
-    g.add_node("B", B)
-    g.add_node("C", C)
-    g.add_node("D", D)
-    g.summary()
-    _ = g.plot(layout='spring', edge_decimals=3)
+    # # A = AIN(0, 10, 2)
+    # B = AIN(2, 8, 3)
+    # C = AIN(4, 12, 5)
+    # D = AIN(6, 14, 11)
+    # g = GraphAIN(directed=True, edge_threshold=0.0, dominance_only=True)
+    # g.add_node("A", A)
+    # g.add_node("B", B)
+    # g.add_node("C", C)
+    # g.add_node("D", D)
+    # g.summary()
+    # _ = g.plot(layout='spring', edge_decimals=3)

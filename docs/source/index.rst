@@ -44,6 +44,24 @@ If the ``asymintervals`` library has contributed to a scientific publication, we
       doi={10.1016/j.fss.2024.109169}
    }
 
+.. code-block::
+
+   [2] Sałabun, W. (2025). AsymIntervals: A Python library for uncertainty modeling with asymmetric
+       interval numbers. SoftwareX, 32, 102380. https://doi.org/10.1016/j.softx.2025.102380
+
+.. code-block::
+
+   @article{salabun2025asymintervals,
+      title={AsymIntervals: A Python library for uncertainty modeling with asymmetric interval numbers},
+      author={Sa{\l}abun, Wojciech},
+      journal={SoftwareX},
+      volume={32},
+      pages={102380},
+      year={2025},
+      publisher={Elsevier},
+      doi={10.1016/j.softx.2025.102380}
+   }
+
 Example
 ^^^^^^^
 

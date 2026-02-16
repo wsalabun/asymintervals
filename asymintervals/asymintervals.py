@@ -658,6 +658,17 @@ class AIN:
         res = AIN(new_a, new_b, new_c)
         return res
 
+    @property
+    def a(self):
+        return self.lower
+
+    @property
+    def b(self):
+        return self.upper
+
+    @property
+    def c(self):
+        return self.expected
 
     def pdf(self, x):
         """
